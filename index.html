@@ -1,0 +1,1891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RECONX 5 — Ultimate Security Toolkit</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;600;700;800&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#06080f;--bg2:#090d16;--panel:#0c1220;--panel2:#0f1628;
+  --border:#162033;--border2:#1e2d47;
+  --accent:#00c8ff;--accent2:#00ffaa;--accent3:#ff6b35;
+  --warn:#ffd166;--danger:#ff3366;--purple:#a78bfa;--pink:#f472b6;
+  --text:#ccd8e8;--muted:#3a5070;--muted2:#5a7090;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,200,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,255,.022) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+.bg-glow{position:fixed;top:-20%;left:-10%;width:55%;height:55%;background:radial-gradient(ellipse,rgba(0,200,255,.035) 0%,transparent 70%);pointer-events:none;z-index:0;}
+.bg-glow2{position:fixed;bottom:-20%;right:-10%;width:45%;height:45%;background:radial-gradient(ellipse,rgba(0,255,170,.025) 0%,transparent 70%);pointer-events:none;z-index:0;}
+.scanlines{position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.045) 3px,rgba(0,0,0,.045) 6px);pointer-events:none;z-index:1;}
+.wrap{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:16px 20px;}
+
+/* ── TOP BAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(6,8,15,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;}
+.topbar-logo{font-family:'Orbitron',monospace;font-size:.85rem;font-weight:900;letter-spacing:.25em;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.lang-toggle{display:flex;gap:3px;background:var(--panel);border:1px solid var(--border2);border-radius:5px;padding:3px;}
+.lang-btn{padding:4px 12px;font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.1em;cursor:pointer;border-radius:3px;border:none;background:transparent;color:var(--muted2);transition:all .2s;}
+.lang-btn.active{background:rgba(0,200,255,.15);color:var(--accent);}
+.settings-btn{background:transparent;border:1px solid var(--border2);border-radius:5px;padding:6px 12px;color:var(--muted2);font-family:'Share Tech Mono',monospace;font-size:.6rem;cursor:pointer;letter-spacing:.1em;transition:all .2s;}
+.settings-btn:hover{color:var(--accent);border-color:var(--accent);}
+
+body{padding-top:52px;}
+
+/* ── HEADER ── */
+header{display:flex;flex-direction:column;align-items:center;padding:36px 0 20px;text-align:center;}
+.logo{font-family:'Orbitron',monospace;font-size:3.2rem;font-weight:900;letter-spacing:.35em;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 24px rgba(0,200,255,.45));}
+.logo-sub{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted2);letter-spacing:.22em;text-indent:.22em;margin-top:5px;}
+.badge-auth{display:inline-block;background:rgba(255,51,102,.1);border:1px solid rgba(255,51,102,.3);color:var(--danger);font-family:'Share Tech Mono',monospace;font-size:.55rem;letter-spacing:.1em;padding:3px 10px;border-radius:2px;margin-top:7px;}
+
+/* ── NAV ── */
+.nav-wrap{overflow-x:auto;margin:24px 0 0;}
+.nav-tabs{display:flex;gap:0;border-bottom:1px solid var(--border2);width:max-content;min-width:100%;}
+.nav-tab{padding:10px 18px;font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.1em;color:var(--muted2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:6px;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.nav-tab .dot{width:5px;height:5px;border-radius:50%;background:var(--muted);transition:all .2s;flex-shrink:0;}
+.nav-tab.active .dot{background:var(--accent);box-shadow:0 0 7px var(--accent);}
+.nav-tab.done .dot{background:var(--accent2);box-shadow:0 0 6px var(--accent2);}
+
+/* ── PAGES ── */
+.page{display:none;padding:22px 0;}
+.page.active{display:block;}
+
+/* ── MODAL (Settings) ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--panel2);border:1px solid var(--border2);border-radius:10px;width:100%;max-width:520px;overflow:hidden;}
+.modal-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-family:'Orbitron',monospace;font-size:.75rem;letter-spacing:.12em;color:var(--accent);}
+.modal-close{background:transparent;border:none;color:var(--muted2);cursor:pointer;font-size:1.2rem;line-height:1;padding:2px 6px;}
+.modal-close:hover{color:var(--danger);}
+.modal-body{padding:20px;}
+.setting-group{margin-bottom:18px;}
+.setting-label{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--accent);letter-spacing:.15em;margin-bottom:7px;display:block;}
+.setting-desc{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--muted2);margin-bottom:8px;line-height:1.6;}
+.setting-input{width:100%;background:rgba(0,200,255,.04);border:1px solid var(--border2);border-radius:5px;padding:10px 14px;color:var(--accent2);font-family:'Share Tech Mono',monospace;font-size:.82rem;outline:none;transition:all .3s;}
+.setting-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,200,255,.1);}
+.setting-input::placeholder{color:var(--muted);}
+.setting-select{width:100%;background:var(--panel);border:1px solid var(--border2);border-radius:5px;padding:10px 14px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:.8rem;outline:none;cursor:pointer;}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+.btn{padding:9px 20px;border-radius:5px;font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.1em;cursor:pointer;transition:all .2s;border:none;}
+.btn-primary{background:linear-gradient(135deg,rgba(0,200,255,.2),rgba(0,255,170,.1));border:1px solid var(--accent);color:var(--accent);}
+.btn-primary:hover{box-shadow:0 0 16px rgba(0,200,255,.2);}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted2);}
+.btn-ghost:hover{border-color:var(--muted2);color:var(--text);}
+.api-status{display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:.62rem;margin-top:8px;}
+.api-dot{width:7px;height:7px;border-radius:50%;}
+
+/* ── SCANNER ── */
+.scan-hero{background:var(--panel);border:1px solid var(--border2);border-radius:10px;padding:22px;margin-bottom:18px;position:relative;}
+.scan-hero::after{content:'PASSIVE RECON ENGINE';position:absolute;top:10px;right:14px;font-family:'Share Tech Mono',monospace;font-size:.52rem;color:var(--muted);letter-spacing:.14em;}
+.scan-label{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--accent);letter-spacing:.18em;margin-bottom:7px;}
+.scan-row{display:flex;gap:10px;flex-wrap:wrap;}
+.scan-input{flex:1;min-width:220px;background:rgba(0,200,255,.04);border:1px solid var(--border2);border-radius:6px;padding:12px 15px;color:var(--accent2);font-family:'Share Tech Mono',monospace;font-size:.88rem;outline:none;transition:all .3s;}
+.scan-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,200,255,.1);}
+.scan-input::placeholder{color:var(--muted);}
+.scan-btn{background:linear-gradient(135deg,rgba(0,200,255,.18),rgba(0,255,170,.1));border:1px solid var(--accent);border-radius:6px;padding:12px 28px;color:var(--accent);font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:.14em;cursor:pointer;transition:all .3s;white-space:nowrap;}
+.scan-btn:hover{box-shadow:0 0 20px rgba(0,200,255,.22);transform:translateY(-1px);}
+.scan-btn:disabled{opacity:.5;pointer-events:none;}
+.prog-wrap{height:2px;background:var(--border);border-radius:1px;margin-top:14px;overflow:hidden;display:none;}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:width .5s ease;box-shadow:0 0 8px var(--accent);}
+.scan-status{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted2);margin-top:7px;min-height:16px;}
+
+/* Tech stack badges */
+.stack-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.stack-badge{padding:4px 10px;border-radius:3px;font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.08em;}
+
+/* ── MOD GRID ── */
+.mod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;}
+.mod-card{background:var(--panel);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:border-color .3s;}
+.mod-head{padding:11px 15px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.mod-icon{font-size:.95rem;}
+.mod-title{font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.09em;color:var(--text);flex:1;}
+.mod-status{font-family:'Share Tech Mono',monospace;font-size:.56rem;}
+.mod-body{padding:13px 15px;min-height:85px;}
+
+/* ── TERMINAL ── */
+.term{background:#040810;border:1px solid rgba(0,200,255,.07);border-radius:4px;padding:11px;font-family:'Share Tech Mono',monospace;font-size:.7rem;line-height:1.8;color:var(--accent2);max-height:180px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;}
+.term::-webkit-scrollbar{width:3px;}
+.term::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.t-c{color:var(--accent)}.t-g{color:var(--accent2)}.t-y{color:var(--warn)}.t-r{color:var(--danger)}.t-m{color:var(--muted2)}.t-p{color:var(--purple)}
+
+/* ── RESULTS ── */
+.rrow{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.035);font-family:'Share Tech Mono',monospace;font-size:.68rem;}
+.rrow:last-child{border-bottom:none;}
+.rk{color:var(--muted2);min-width:120px;flex-shrink:0;}
+.rv{color:var(--text);word-break:break-all;flex:1;}
+.badge{padding:2px 7px;border-radius:2px;font-size:.54rem;font-weight:700;letter-spacing:.07em;white-space:nowrap;flex-shrink:0;}
+.b-ok{background:rgba(0,255,170,.1);color:var(--accent2);border:1px solid rgba(0,255,170,.2);}
+.b-warn{background:rgba(255,209,102,.09);color:var(--warn);border:1px solid rgba(255,209,102,.2);}
+.b-fail{background:rgba(255,51,102,.09);color:var(--danger);border:1px solid rgba(255,51,102,.18);}
+.b-info{background:rgba(0,200,255,.07);color:var(--accent);border:1px solid rgba(0,200,255,.14);}
+.b-na{background:rgba(255,255,255,.04);color:var(--muted2);border:1px solid rgba(255,255,255,.06);}
+.b-purple{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2);}
+.b-pink{background:rgba(244,114,182,.1);color:var(--pink);border:1px solid rgba(244,114,182,.2);}
+
+/* ── CHECKLIST ── */
+.cl-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px;}
+.cl-title{font-family:'Orbitron',monospace;font-size:.95rem;letter-spacing:.09em;color:var(--accent);}
+.btn-ai{background:linear-gradient(135deg,rgba(167,139,250,.16),rgba(0,200,255,.07));border:1px solid var(--purple);border-radius:5px;padding:8px 18px;color:var(--purple);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.09em;cursor:pointer;transition:all .3s;}
+.btn-ai:hover{box-shadow:0 0 16px rgba(167,139,250,.25);}
+.btn-ai:disabled{opacity:.5;pointer-events:none;}
+.cl-prog-card{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:16px;margin-bottom:18px;}
+.cl-prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;}
+.cl-prog-lbl{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.09em;}
+.cl-prog-pct{font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;color:var(--accent2);}
+.cl-bar-wrap{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.cl-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .4s ease;}
+.cl-stats{display:flex;gap:14px;margin-top:9px;flex-wrap:wrap;font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted2);}
+.cl-stats span{color:var(--text);}
+.owasp-sec{margin-bottom:18px;}
+.os-head{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.1em;padding:9px 13px;background:rgba(255,107,53,.055);border:1px solid rgba(255,107,53,.12);border-radius:6px 6px 0 0;display:flex;align-items:center;gap:7px;}
+.os-items{border:1px solid var(--border2);border-top:none;border-radius:0 0 6px 6px;overflow:hidden;}
+.chk-item{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .2s;}
+.chk-item:last-child{border-bottom:none;}
+.chk-item:hover{background:rgba(255,255,255,.012);}
+.chk-item.checked{background:rgba(0,255,170,.022);}
+.chk-box{width:16px;height:16px;border:1px solid var(--border2);border-radius:3px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:.65rem;}
+.chk-item.checked .chk-box{background:var(--accent2);border-color:var(--accent2);color:#000;}
+.chk-main{flex:1;}
+.chk-name{font-weight:600;font-size:.82rem;color:var(--text);margin-bottom:2px;}
+.chk-desc{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--muted2);line-height:1.6;}
+.ai-resp{background:var(--panel2);border:1px solid rgba(167,139,250,.16);border-radius:8px;padding:16px;margin-top:16px;font-family:'Share Tech Mono',monospace;font-size:.72rem;line-height:1.9;color:var(--text);display:none;}
+.ai-resp.show{display:block;}
+.ai-resp-hd{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.09em;color:var(--purple);margin-bottom:11px;padding-bottom:8px;border-bottom:1px solid rgba(167,139,250,.12);display:flex;align-items:center;gap:7px;}
+
+/* ── AI CHAT ── */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 200px);min-height:500px;}
+.chat-info-bar{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.chat-info-left{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted2);}
+.chat-info-left strong{color:var(--accent2);}
+.chat-model-badge{display:flex;align-items:center;gap:6px;font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted2);}
+.chat-messages{flex:1;overflow-y:auto;padding:4px 0;display:flex;flex-direction:column;gap:12px;}
+.chat-messages::-webkit-scrollbar{width:4px;}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.chat-msg{display:flex;gap:10px;align-items:flex-start;}
+.chat-msg.user{flex-direction:row-reverse;}
+.msg-avatar{width:30px;height:30px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0;font-family:'Share Tech Mono',monospace;font-size:.6rem;font-weight:700;}
+.msg-avatar.ai{background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.25);color:var(--purple);}
+.msg-avatar.user{background:rgba(0,200,255,.12);border:1px solid rgba(0,200,255,.22);color:var(--accent);}
+.msg-bubble{max-width:80%;padding:12px 15px;border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:.72rem;line-height:1.8;}
+.chat-msg.ai .msg-bubble{background:var(--panel2);border:1px solid var(--border2);color:var(--text);border-radius:2px 8px 8px 8px;}
+.chat-msg.user .msg-bubble{background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.2);color:var(--accent2);border-radius:8px 2px 8px 8px;}
+.chat-input-wrap{margin-top:14px;display:flex;gap:10px;align-items:flex-end;}
+.chat-textarea{flex:1;background:rgba(0,200,255,.04);border:1px solid var(--border2);border-radius:8px;padding:12px 15px;color:var(--text);font-family:'Share Tech Mono',monospace;font-size:.78rem;outline:none;resize:none;min-height:48px;max-height:120px;transition:border-color .3s;line-height:1.6;}
+.chat-textarea:focus{border-color:var(--accent);}
+.chat-send{background:linear-gradient(135deg,rgba(0,200,255,.2),rgba(0,255,170,.1));border:1px solid var(--accent);border-radius:6px;padding:12px 20px;color:var(--accent);font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.1em;cursor:pointer;transition:all .3s;white-space:nowrap;height:48px;}
+.chat-send:hover{box-shadow:0 0 16px rgba(0,200,255,.2);}
+.chat-send:disabled{opacity:.5;pointer-events:none;}
+.chat-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:.72rem;text-align:center;}
+.chat-empty .ce-icon{font-size:2.5rem;opacity:.2;}
+.chat-suggestions{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.chat-suggestion{background:var(--panel);border:1px solid var(--border2);border-radius:4px;padding:7px 12px;font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--muted2);cursor:pointer;transition:all .2s;}
+.chat-suggestion:hover{border-color:var(--accent);color:var(--accent);}
+.no-api-warn{background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.2);border-radius:8px;padding:16px;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--warn);line-height:1.8;text-align:center;}
+.no-api-warn a{color:var(--accent);cursor:pointer;text-decoration:underline;}
+
+/* ── HISTORY ── */
+.hist-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.hist-title{font-family:'Orbitron',monospace;font-size:.9rem;letter-spacing:.1em;color:var(--accent);}
+.hist-actions{display:flex;gap:8px;}
+.hist-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:.7rem;gap:10px;text-align:center;}
+.hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.hist-card{background:var(--panel);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:all .3s;cursor:pointer;}
+.hist-card:hover{border-color:rgba(0,200,255,.25);transform:translateY(-2px);}
+.hist-card-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.hist-domain{font-family:'Orbitron',monospace;font-size:.72rem;letter-spacing:.08em;color:var(--accent2);}
+.hist-date{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--muted2);}
+.hist-card-body{padding:12px 14px;}
+.hist-score-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.hist-score-num{font-family:'Orbitron',monospace;font-size:1.4rem;font-weight:900;}
+.hist-mini-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:6px;}
+.hist-mini-fill{height:100%;border-radius:2px;}
+.hist-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px;}
+.compare-section{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:18px;margin-top:20px;display:none;}
+.compare-section.show{display:block;}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;}
+.compare-col{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:14px;}
+.compare-col-title{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.1em;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border);}
+.diff-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);font-family:'Share Tech Mono',monospace;font-size:.65rem;}
+.diff-improved{color:var(--accent2);}
+.diff-worse{color:var(--danger);}
+.diff-same{color:var(--muted2);}
+
+/* ── TIPS ── */
+.tips-intro{background:var(--panel);border:1px solid var(--border2);border-left:3px solid var(--accent2);border-radius:8px;padding:16px 18px;margin-bottom:20px;font-family:'Share Tech Mono',monospace;font-size:.72rem;line-height:1.8;color:var(--muted2);}
+.tips-intro strong{color:var(--accent2);}
+.tips-filter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.filter-btn{background:transparent;border:1px solid var(--border2);border-radius:4px;padding:5px 12px;font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.08em;color:var(--muted2);cursor:pointer;transition:all .2s;}
+.filter-btn:hover,.filter-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,255,.07);}
+.tips-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px;}
+.tip-card{background:var(--panel);border:1px solid var(--border2);border-radius:8px;overflow:hidden;transition:all .3s;}
+.tip-card:hover{border-color:rgba(0,200,255,.22);transform:translateY(-2px);}
+.tip-card.hidden{display:none;}
+.tip-head{padding:12px 14px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--border);}
+.tip-icon{font-size:1.1rem;}
+.tip-title{font-family:'Orbitron',monospace;font-size:.64rem;letter-spacing:.07em;color:var(--accent2);flex:1;}
+.tip-body{padding:13px 14px;}
+.tip-desc{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--muted2);line-height:1.7;margin-bottom:9px;}
+.tip-code{background:#040810;border:1px solid rgba(0,200,255,.07);border-radius:4px;padding:9px 11px;font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--accent2);word-break:break-all;line-height:1.6;white-space:pre-wrap;position:relative;}
+.copy-btn{position:absolute;top:6px;right:6px;background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.2);border-radius:3px;padding:3px 8px;font-family:'Share Tech Mono',monospace;font-size:.55rem;color:var(--accent);cursor:pointer;transition:all .2s;}
+.copy-btn:hover{background:rgba(0,200,255,.2);}
+.tip-code-wrap{position:relative;}
+.tip-impact{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap;}
+
+/* ── TOOLS ── */
+.tools-intro{background:var(--panel);border:1px solid var(--border2);border-left:3px solid var(--purple);border-radius:8px;padding:14px 16px;margin-bottom:18px;font-family:'Share Tech Mono',monospace;font-size:.7rem;line-height:1.8;color:var(--muted2);}
+.tools-intro strong{color:var(--accent2);}
+.tools-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;}
+.tool-card{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:16px;transition:all .3s;}
+.tool-card:hover{border-color:rgba(0,200,255,.2);transform:translateY(-2px);}
+.tool-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;}
+.tool-name{font-family:'Orbitron',monospace;font-size:.72rem;letter-spacing:.07em;color:var(--accent);}
+.tool-desc{font-family:'Share Tech Mono',monospace;font-size:.66rem;color:var(--muted2);line-height:1.7;margin-bottom:9px;}
+.tool-cmd{background:#040810;border:1px solid rgba(0,200,255,.07);border-radius:4px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--accent2);word-break:break-all;white-space:pre-wrap;}
+.tool-link{display:inline-block;margin-top:8px;font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(0,200,255,.22);}
+
+/* ── REPORT ── */
+.rep-actions{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+.rep-btn{padding:9px 18px;border-radius:5px;font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.09em;cursor:pointer;transition:all .2s;border:1px solid var(--border2);background:var(--panel);color:var(--muted2);}
+.rep-btn:hover{border-color:var(--accent);color:var(--accent);}
+.rep-btn.active-export{border-color:var(--accent2);color:var(--accent2);}
+.rep-hero{display:grid;grid-template-columns:1fr auto;gap:18px;margin-bottom:18px;}
+.rep-meta{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:16px;}
+.score-card{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:7px;min-width:145px;}
+.score-big{font-family:'Orbitron',monospace;font-size:2.6rem;font-weight:900;line-height:1;}
+.score-lbl{font-family:'Share Tech Mono',monospace;font-size:.55rem;color:var(--muted2);letter-spacing:.12em;}
+.score-grade{font-family:'Orbitron',monospace;font-size:.65rem;letter-spacing:.1em;}
+.findings-box{background:var(--panel);border:1px solid var(--border2);border-radius:8px;overflow:hidden;}
+.finding-row{display:flex;align-items:flex-start;gap:11px;padding:12px 15px;border-bottom:1px solid var(--border);}
+.finding-row:last-child{border-bottom:none;}
+.finding-num{font-family:'Orbitron',monospace;font-size:.58rem;color:var(--muted);min-width:24px;}
+.finding-body{flex:1;}
+.finding-title{font-weight:600;font-size:.84rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;}
+.finding-fix{font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--muted2);line-height:1.6;}
+.vis-dashboard{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:18px;}
+.vis-card{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:16px;text-align:center;}
+.vis-num{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;line-height:1;margin-bottom:4px;}
+.vis-lbl{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--muted2);letter-spacing:.1em;}
+.cat-bars{background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:16px;margin-bottom:18px;}
+.cat-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-family:'Share Tech Mono',monospace;font-size:.65rem;}
+.cat-bar-label{min-width:120px;color:var(--muted2);}
+.cat-bar-wrap{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+.cat-bar-fill{height:100%;border-radius:4px;transition:width .6s ease;}
+.cat-bar-val{min-width:35px;text-align:right;color:var(--text);}
+
+/* ── MISC ── */
+.hline{height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.16;margin:13px 0;}
+.sec-title{font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.14em;color:var(--accent);margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:38px;color:var(--muted);font-family:'Share Tech Mono',monospace;font-size:.68rem;letter-spacing:.09em;gap:7px;text-align:center;}
+.empty .ei{font-size:1.6rem;opacity:.18;}
+.spin{display:inline-block;width:10px;height:10px;border:1.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:4px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+footer{text-align:center;padding:26px 0;font-family:'Share Tech Mono',monospace;font-size:.56rem;color:var(--muted);letter-spacing:.13em;border-top:1px solid var(--border);margin-top:36px;}
+@media(max-width:700px){
+  .logo{font-size:2rem;}
+  .mod-grid,.tips-grid,.tools-grid,.hist-grid{grid-template-columns:1fr;}
+  .rep-hero,.compare-grid{grid-template-columns:1fr;}
+  .vis-dashboard{grid-template-columns:1fr 1fr;}
+  .topbar-logo{font-size:.7rem;}
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div><div class="bg-glow"></div><div class="bg-glow2"></div><div class="scanlines"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">RECONX <span style="font-size:.6rem;opacity:.5">5</span></div>
+  <div class="topbar-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('id')">ID</button>
+    </div>
+    <button class="settings-btn" onclick="openSettings()">⚙ <span data-en="SETTINGS" data-id="PENGATURAN">SETTINGS</span></button>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" data-en="⚙ SETTINGS & AI CONFIGURATION" data-id="⚙ PENGATURAN & KONFIGURASI AI">⚙ SETTINGS & AI CONFIGURATION</div>
+      <button class="modal-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:rgba(0,255,170,.06);border:1px solid rgba(0,255,170,.2);border-radius:6px;padding:11px 13px;margin-bottom:16px;font-family:'Share Tech Mono',monospace;font-size:.65rem;line-height:1.9;" id="hybridInfoBox">
+        <span style="color:var(--accent2)">⚡ Shared Worker aktif</span> — semua user bisa langsung pakai AI tanpa setup apapun.<br>
+        <span style="color:var(--muted2)">Opsional: isi API key di bawah untuk override dan pakai key sendiri.</span>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label" data-en="AI PROVIDER" data-id="PROVIDER AI">AI PROVIDER</span>
+        <select class="setting-select" id="aiProvider" onchange="onProviderChange()">
+          <option value="groq">Groq (Free — Llama 3.1)</option>
+          <option value="openai">OpenAI (GPT-4o)</option>
+          <option value="gemini">Google Gemini</option>
+          <option value="claude">Anthropic Claude</option>
+          <option value="custom">Custom Endpoint</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label">API KEY <span style="font-weight:400;color:var(--muted2);font-size:.58rem" data-en="(optional — Worker is active)" data-id="(opsional — Worker sudah aktif)">(opsional — Worker sudah aktif)</span></span>
+        <span class="setting-desc" id="apiKeyDesc">Groq gratis di <a href="https://console.groq.com" target="_blank" rel="noopener" style="color:var(--accent)">console.groq.com</a> — tanpa kartu kredit. Jika diisi, akan override Worker.</span>
+        <input class="setting-input" type="password" id="apiKeyInput" placeholder="sk-..." />
+        <div class="api-status" id="apiStatus">
+          <div class="api-dot" id="apiDot" style="background:var(--muted)"></div>
+          <span id="apiStatusText" data-en="No API key configured" data-id="API key belum dikonfigurasi">No API key configured</span>
+        </div>
+      </div>
+      <div class="setting-group" id="customEndpointGroup" style="display:none">
+        <span class="setting-label" data-en="CUSTOM ENDPOINT URL" data-id="URL ENDPOINT CUSTOM">CUSTOM ENDPOINT URL</span>
+        <input class="setting-input" type="text" id="customEndpoint" placeholder="https://reconx.gabriel-dimas-eka-jaya.workers.dev" />
+      </div>
+      <div class="setting-group">
+        <span class="setting-label" data-en="AI MODEL" data-id="MODEL AI">AI MODEL</span>
+        <select class="setting-select" id="aiModel">
+          <option value="llama-3.1-8b-instant">Llama 3.1 8B Instant (Fast)</option>
+          <option value="llama-3.1-70b-versatile">Llama 3.1 70B (Smarter)</option>
+          <option value="mixtral-8x7b-32768">Mixtral 8x7B (Balanced)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeSettings()"><span data-en="CANCEL" data-id="BATAL">CANCEL</span></button>
+      <button class="btn btn-primary" onclick="saveSettings()"><span data-en="SAVE & TEST" data-id="SIMPAN & TEST">SAVE & TEST</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <div class="logo">RECONX <span style="font-size:1.2rem;opacity:.4">5</span></div>
+    <div class="logo-sub" data-en="// ULTIMATE SECURITY AUDIT TOOLKIT — AI POWERED //" data-id="// TOOLKIT AUDIT KEAMANAN ULTIMATE — BERTENAGA AI //">// ULTIMATE SECURITY AUDIT TOOLKIT — AI POWERED //</div>
+
+  </header>
+
+  <div class="nav-wrap">
+    <div class="nav-tabs">
+      <div class="nav-tab active" id="nt-scanner" onclick="gotoPage('scanner')"><span class="dot"></span><span data-en="SCANNER" data-id="SCANNER">SCANNER</span></div>
+      <div class="nav-tab" id="nt-checklist" onclick="gotoPage('checklist')"><span class="dot"></span><span data-en="OWASP CHECKLIST" data-id="CHECKLIST OWASP">OWASP CHECKLIST</span></div>
+      <div class="nav-tab" id="nt-chat" onclick="gotoPage('chat')"><span class="dot"></span><span data-en="AI CHAT" data-id="CHAT AI">AI CHAT</span></div>
+      <div class="nav-tab" id="nt-history" onclick="gotoPage('history')"><span class="dot"></span><span data-en="HISTORY" data-id="RIWAYAT">HISTORY</span></div>
+      <div class="nav-tab" id="nt-tips" onclick="gotoPage('tips')"><span class="dot"></span><span data-en="TIPS & TRICKS" data-id="TIPS & TRIK">TIPS & TRICKS</span></div>
+      <div class="nav-tab" id="nt-tools" onclick="gotoPage('tools')"><span class="dot"></span><span data-en="TOOLS" data-id="TOOLS">TOOLS</span></div>
+      <div class="nav-tab" id="nt-report" onclick="gotoPage('report')"><span class="dot"></span><span data-en="REPORT" data-id="LAPORAN">REPORT</span></div>
+    </div>
+  </div>
+
+  <!-- ════ SCANNER ════ -->
+  <div class="page active" id="pg-scanner">
+    <div class="scan-hero">
+      <div class="scan-label" data-en="// TARGET DOMAIN OR IP" data-id="// DOMAIN ATAU IP TARGET">// TARGET DOMAIN OR IP</div>
+      <div class="scan-row">
+        <input class="scan-input" id="targetInput" type="text" placeholder="example.com" />
+        <button class="scan-btn" id="scanBtn" onclick="startScan()"><span data-en="⟶ LAUNCH SCAN" data-id="⟶ MULAI SCAN">⟶ LAUNCH SCAN</span></button>
+      </div>
+      <div class="prog-wrap" id="progressWrap"><div class="prog-bar" id="progressBar"></div></div>
+      <div class="scan-status" id="scanStatus"></div>
+      <div id="stackDetect" style="display:none;margin-top:12px">
+        <div class="scan-label" data-en="// DETECTED TECH STACK" data-id="// TECH STACK TERDETEKSI">// DETECTED TECH STACK</div>
+        <div class="stack-row" id="stackBadges"></div>
+      </div>
+    </div>
+    <div class="mod-grid" id="modGrid">
+      <div class="mod-card"><div class="mod-head"><span class="mod-icon">🌐</span><span class="mod-title" data-en="RECON / IP INFO" data-id="RECON / INFO IP">RECON / IP INFO</span><span class="mod-status t-m" data-en="IDLE" data-id="SIAP">IDLE</span></div><div class="mod-body"><div class="empty"><div class="ei">◈</div><span data-en="Awaiting scan" data-id="Menunggu scan">Awaiting scan</span></div></div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-icon">🔍</span><span class="mod-title" data-en="DNS RECORDS" data-id="RECORD DNS">DNS RECORDS</span><span class="mod-status t-m" data-en="IDLE" data-id="SIAP">IDLE</span></div><div class="mod-body"><div class="empty"><div class="ei">◈</div><span data-en="Awaiting scan" data-id="Menunggu scan">Awaiting scan</span></div></div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-icon">🔒</span><span class="mod-title">SSL / TLS</span><span class="mod-status t-m" data-en="IDLE" data-id="SIAP">IDLE</span></div><div class="mod-body"><div class="empty"><div class="ei">◈</div><span data-en="Awaiting scan" data-id="Menunggu scan">Awaiting scan</span></div></div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-icon">📡</span><span class="mod-title" data-en="HTTP HEADERS" data-id="HEADER HTTP">HTTP HEADERS</span><span class="mod-status t-m" data-en="IDLE" data-id="SIAP">IDLE</span></div><div class="mod-body"><div class="empty"><div class="ei">◈</div><span data-en="Awaiting scan" data-id="Menunggu scan">Awaiting scan</span></div></div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-icon">🚪</span><span class="mod-title" data-en="PORT PROBE" data-id="PROBE PORT">PORT PROBE</span><span class="mod-status t-m" data-en="IDLE" data-id="SIAP">IDLE</span></div><div class="mod-body"><div class="empty"><div class="ei">◈</div><span data-en="Awaiting scan" data-id="Menunggu scan">Awaiting scan</span></div></div></div>
+      <div class="mod-card"><div class="mod-head"><span class="mod-icon">🗂️</span><span class="mod-title" data-en="SUBDOMAIN ENUM" data-id="ENUM SUBDOMAIN">SUBDOMAIN ENUM</span><span class="mod-status t-m" data-en="IDLE" data-id="SIAP">IDLE</span></div><div class="mod-body"><div class="empty"><div class="ei">◈</div><span data-en="Awaiting scan" data-id="Menunggu scan">Awaiting scan</span></div></div></div>
+    </div>
+  </div>
+
+  <!-- ════ CHECKLIST ════ -->
+  <div class="page" id="pg-checklist">
+    <div class="cl-top">
+      <div class="cl-title" data-en="OWASP TOP 10 — SECURITY CHECKLIST" data-id="OWASP TOP 10 — CHECKLIST KEAMANAN">OWASP TOP 10 — SECURITY CHECKLIST</div>
+      <button class="btn-ai" id="aiAnalyzeBtn" onclick="runAIAnalysis()"><span data-en="◈ AI ANALYZE" data-id="◈ ANALISIS AI">◈ AI ANALYZE</span></button>
+    </div>
+    <div class="cl-prog-card">
+      <div class="cl-prog-top">
+        <div class="cl-prog-lbl" data-en="SECURITY COMPLIANCE" data-id="KEPATUHAN KEAMANAN">SECURITY COMPLIANCE</div>
+        <div class="cl-prog-pct" id="cl-pct">0%</div>
+      </div>
+      <div class="cl-bar-wrap"><div class="cl-bar" id="cl-bar" style="width:0%"></div></div>
+      <div class="cl-stats">
+        <div><span data-en="Checked:" data-id="Dicentang:">Checked:</span> <span id="cl-done">0</span></div>
+        <div><span data-en="Total:" data-id="Total:">Total:</span> <span id="cl-total">0</span></div>
+        <div><span data-en="Critical remaining:" data-id="Kritis tersisa:">Critical remaining:</span> <span id="cl-crit">0</span></div>
+      </div>
+    </div>
+    <div id="cl-container"></div>
+    <div class="ai-resp" id="aiAnalyzeResp">
+      <div class="ai-resp-hd">◈ <span data-en="AI SECURITY ANALYSIS" data-id="ANALISIS KEAMANAN AI">AI SECURITY ANALYSIS</span></div>
+      <div id="aiAnalyzeText"></div>
+    </div>
+  </div>
+
+  <!-- ════ AI CHAT ════ -->
+  <div class="page" id="pg-chat">
+    <div class="chat-wrap" id="chatWrap">
+      <!-- injected by JS -->
+    </div>
+  </div>
+
+  <!-- ════ HISTORY ════ -->
+  <div class="page" id="pg-history">
+    <div class="hist-top">
+      <div class="hist-title" data-en="SCAN HISTORY & COMPARE" data-id="RIWAYAT SCAN & PERBANDINGAN">SCAN HISTORY & COMPARE</div>
+      <div class="hist-actions">
+        <button class="rep-btn" onclick="clearHistory()"><span data-en="🗑 CLEAR ALL" data-id="🗑 HAPUS SEMUA">🗑 CLEAR ALL</span></button>
+      </div>
+    </div>
+    <div id="histContainer"></div>
+    <div class="compare-section" id="compareSection">
+      <div class="sec-title" data-en="COMPARISON" data-id="PERBANDINGAN">COMPARISON</div>
+      <div id="compareContent"></div>
+    </div>
+  </div>
+
+  <!-- ════ TIPS ════ -->
+  <div class="page" id="pg-tips">
+    <div class="tips-intro">
+      <strong data-en="Practical security tips" data-id="Tips keamanan praktis">Practical security tips</strong>
+      <span data-en=" for vibe coders building with AI — each tip includes copy-paste ready code." data-id=" untuk vibe coder yang build dengan AI — setiap tip dilengkapi kode siap pakai."> for vibe coders building with AI — each tip includes copy-paste ready code.</span>
+    </div>
+    <div class="tips-filter" id="tipsFilter"></div>
+    <div class="tips-grid" id="tipsGrid"></div>
+  </div>
+
+  <!-- ════ TOOLS ════ -->
+  <div class="page" id="pg-tools">
+    <div class="tools-intro">
+      <strong data-en="Professional free tools" data-id="Tools gratis profesional">Professional free tools</strong>
+      <span data-en=" used by security researchers worldwide. Use only on systems you own or have written permission to test." data-id=" yang digunakan security researcher di seluruh dunia. Gunakan hanya di sistem yang kamu miliki atau ada izin tertulis."> used by security researchers worldwide. Use only on systems you own or have written permission to test.</span>
+    </div>
+    <div class="tools-grid" id="toolsGrid"></div>
+  </div>
+
+  <!-- ════ REPORT ════ -->
+  <div class="page" id="pg-report">
+    <div id="repContainer">
+      <div class="empty" style="padding:70px"><div class="ei">◈</div><span data-en="Run a scan first to generate report" data-id="Jalankan scan terlebih dahulu">Run a scan first to generate report</span></div>
+    </div>
+  </div>
+
+  <footer>MADE WITH ❤ FOR THE SECURITY COMMUNITY</footer>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// STATE & STORAGE
+// ════════════════════════════════════════════
+let LANG = 'en';
+let S = { domain:'', startTime:0, results:{}, score:0, issues:[] };
+let chatHistory = [];
+let selectedCompare = [];
+
+// ─────────────────────────────────────────────────────
+// 🔧 KONFIGURASI — Ganti WORKER_URL dengan URL Worker kamu
+//    setelah deploy ke Cloudflare Workers
+//    Contoh: 'https://reconx.gabriel-dimas-eka-jaya.workers.dev'
+// ─────────────────────────────────────────────────────
+const WORKER_URL = 'https://reconx.gabriel-dimas-eka-jaya.workers.dev';
+// ─────────────────────────────────────────────────────
+
+// Cek apakah Worker URL sudah dikonfigurasi
+const WORKER_READY = WORKER_URL && !WORKER_URL.includes('PASTE_WORKER');
+
+// Persistent settings in memory
+let CFG = {
+  provider: WORKER_READY ? 'worker' : 'groq',
+  apiKey: '',
+  model: 'llama-3.1-8b-instant',
+  customEndpoint: WORKER_READY ? WORKER_URL : ''
+};
+let SCAN_HISTORY = []; // in-memory scan history
+let CHECKLIST_STATE = new Set();
+
+function t(en, id) { return LANG === 'id' ? id : en; }
+
+// ════════════════════════════════════════════
+// SETTINGS
+// ════════════════════════════════════════════
+function openSettings() {
+  document.getElementById('aiProvider').value = CFG.provider;
+  document.getElementById('apiKeyInput').value = CFG.apiKey;
+  document.getElementById('aiModel').value = CFG.model;
+  document.getElementById('customEndpoint').value = CFG.customEndpoint;
+  onProviderChange();
+  updateApiStatus();
+  document.getElementById('settingsModal').classList.add('show');
+}
+function closeSettings() { document.getElementById('settingsModal').classList.remove('show'); }
+
+function onProviderChange() {
+  const p = document.getElementById('aiProvider').value;
+  const modelSel = document.getElementById('aiModel');
+  const descEl = document.getElementById('apiKeyDesc');
+  const custGrp = document.getElementById('customEndpointGroup');
+
+  custGrp.style.display = p === 'custom' ? 'block' : 'none';
+
+  const models = {
+    groq: [['llama-3.1-8b-instant','Llama 3.1 8B Instant (Fast, Free)'],['llama-3.1-70b-versatile','Llama 3.1 70B (Smarter, Free)'],['mixtral-8x7b-32768','Mixtral 8x7B (Balanced, Free)']],
+    openai: [['gpt-4o-mini','GPT-4o Mini (Fast)'],['gpt-4o','GPT-4o (Smarter)']],
+    gemini: [['gemini-1.5-flash','Gemini 1.5 Flash (Free tier)'],['gemini-1.5-pro','Gemini 1.5 Pro']],
+    claude: [['claude-haiku-4-5-20251001','Claude Haiku (Fast)'],['claude-sonnet-4-20250514','Claude Sonnet (Smarter)']],
+    custom: [['custom','Custom Model']],
+  };
+
+  const descs = {
+    groq: { en:'Get free Groq API key at console.groq.com — no credit card needed.', id:'Dapatkan API key Groq gratis di console.groq.com — tidak perlu kartu kredit.' },
+    openai: { en:'Get OpenAI API key at platform.openai.com — requires billing.', id:'Dapatkan API key OpenAI di platform.openai.com — memerlukan billing.' },
+    gemini: { en:'Get free Gemini API key at aistudio.google.com — no credit card needed.', id:'Dapatkan API key Gemini gratis di aistudio.google.com — tidak perlu kartu kredit.' },
+    claude: { en:'Get Anthropic API key at console.anthropic.com — requires billing.', id:'Dapatkan API key Anthropic di console.anthropic.com — memerlukan billing.' },
+    custom: { en:'Enter your custom endpoint URL (e.g. Cloudflare Worker). No API key needed if handled by proxy.', id:'Masukkan URL endpoint custom (misal Cloudflare Worker). Tidak perlu API key jika ditangani proxy.' },
+  };
+
+  modelSel.innerHTML = (models[p]||models.groq).map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+  const d = descs[p] || descs.groq;
+  descEl.textContent = LANG === 'id' ? d.id : d.en;
+  descEl.setAttribute('data-en', d.en);
+  descEl.setAttribute('data-id', d.id);
+}
+
+function updateApiStatus() {
+  const dot = document.getElementById('apiDot');
+  const txt = document.getElementById('apiStatusText');
+  if (CFG.apiKey && CFG.apiKey.length > 10) {
+    dot.style.background = 'var(--accent2)';
+    txt.textContent = t('Using your personal API key (overrides default)', 'Menggunakan API key kamu (override default)');
+  } else if (WORKER_READY) {
+    dot.style.background = 'var(--accent)';
+    txt.textContent = t('Using shared Worker — AI ready (no key needed)', 'Menggunakan Worker bersama — AI siap (tidak perlu key)');
+  } else {
+    dot.style.background = 'var(--warn)';
+    txt.textContent = t('Worker not configured yet — enter your API key below', 'Worker belum dikonfigurasi — masukkan API key kamu di bawah');
+  }
+}
+
+async function saveSettings() {
+  CFG.provider = document.getElementById('aiProvider').value;
+  CFG.apiKey = document.getElementById('apiKeyInput').value.trim();
+  CFG.model = document.getElementById('aiModel').value;
+  CFG.customEndpoint = document.getElementById('customEndpoint').value.trim();
+
+  if (CFG.apiKey || CFG.provider === 'custom') {
+    const btn = document.querySelector('.modal-footer .btn-primary');
+    btn.innerHTML = `<span class="spin"></span>${t('TESTING...','MENGUJI...')}`;
+    const ok = await testApiKey();
+    btn.innerHTML = `<span data-en="SAVE & TEST" data-id="SIMPAN & TEST">${t('SAVE & TEST','SIMPAN & TEST')}</span>`;
+    if (ok) {
+      updateApiStatus();
+      closeSettings();
+      renderChat();
+    }
+  } else {
+    updateApiStatus();
+    closeSettings();
+    renderChat();
+  }
+}
+
+async function testApiKey() {
+  try {
+    const res = await callAI([{role:'user',content:'Reply with just: OK'}], 50);
+    if (res) { showToast(t('✓ API connection successful!','✓ Koneksi API berhasil!'), 'ok'); return true; }
+  } catch(e) {}
+  showToast(t('✗ API connection failed. Check key.','✗ Koneksi API gagal. Cek key.'), 'err');
+  return false;
+}
+
+// ════════════════════════════════════════════
+// AI CALL — Hybrid: Worker default, user key override
+// ════════════════════════════════════════════
+async function callAI(messages, maxTokens = 1000) {
+  const { provider, apiKey, model, customEndpoint } = CFG;
+
+  // ── HYBRID LOGIC ──────────────────────────────────────────
+  // Priority 1: User punya custom key → pakai langsung
+  // Priority 2: Worker URL sudah dikonfigurasi → pakai Worker
+  // Priority 3: Tidak ada keduanya → minta user setup
+
+  const userHasKey = apiKey && apiKey.length > 10;
+  const workerConfigured = WORKER_READY;
+
+  // Kalau user punya key sendiri → pakai key mereka (override Worker)
+  if (userHasKey) {
+    return await callWithUserKey(messages, maxTokens, provider, apiKey, model);
+  }
+
+  // Kalau Worker sudah dikonfigurasi → pakai Worker (default)
+  if (workerConfigured) {
+    return await callViaWorker(messages, maxTokens, model, WORKER_URL);
+  }
+
+  // Tidak ada keduanya
+  throw new Error(t(
+    'No AI configured. Please set up your API key in ⚙ Settings.',
+    'AI belum dikonfigurasi. Silakan setup API key di ⚙ Settings.'
+  ));
+}
+
+// ── Call via Cloudflare Worker (API key tersimpan aman di server) ──
+async function callViaWorker(messages, maxTokens, model, workerUrl) {
+  const r = await fetch(workerUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model, messages, max_tokens: maxTokens })
+  });
+  const d = await r.json();
+  if (d.error) throw new Error(d.error);
+  return d.choices?.[0]?.message?.content;
+}
+
+// ── Call langsung dengan user API key ──
+async function callWithUserKey(messages, maxTokens, provider, apiKey, model) {
+  if (provider === 'groq' || provider === 'worker') {
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({ model: model === 'custom' ? 'llama-3.1-8b-instant' : model, messages, max_tokens: maxTokens })
+    });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+    return d.choices?.[0]?.message?.content;
+  }
+
+  if (provider === 'openai') {
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({ model, messages, max_tokens: maxTokens })
+    });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+    return d.choices?.[0]?.message?.content;
+  }
+
+  if (provider === 'gemini') {
+    const gcont = messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] }));
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: gcont })
+    });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+    return d.candidates?.[0]?.content?.parts?.[0]?.text;
+  }
+
+  if (provider === 'claude') {
+    const sysMsg = messages.find(m => m.role === 'system');
+    const chatMsgs = messages.filter(m => m.role !== 'system');
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model, max_tokens: maxTokens, system: sysMsg?.content || '', messages: chatMsgs })
+    });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+    return d.content?.[0]?.text;
+  }
+
+  if (provider === 'custom') {
+    const ep = CFG.customEndpoint;
+    if (!ep) throw new Error('Custom endpoint URL not set');
+    const r = await fetch(ep, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages, max_tokens: maxTokens })
+    });
+    const d = await r.json();
+    return d.choices?.[0]?.message?.content || d.content?.[0]?.text;
+  }
+
+  throw new Error('Unknown provider: ' + provider);
+}
+
+function buildSystemPrompt() {
+  const sd = S.domain ? `
+Target: ${S.domain}
+IP: ${S.results.recon?.ip||'N/A'} | Country: ${S.results.recon?.country||'N/A'} | ISP: ${S.results.recon?.isp||'N/A'}
+Stack: ${(S.results.stack||[]).join(', ')||'Unknown'}
+SPF: ${S.results.dns?.hasSPF?'Present':'Missing'} | DMARC: ${S.results.dns?.hasDMARC?'Present':'Missing'}
+SSL days left: ${S.results.ssl?.days??'Unknown'} | SSL expired: ${S.results.ssl?.expired||false}
+HTTP Header Score: ${S.results.headers?.score||0}/${S.results.headers?.req||4}
+Server info leak: ${S.results.headers?.leaks?.join(', ')||'None'}
+Open ports: ${S.results.ports?.open?.map(p=>p.p+'/'+p.s).join(', ')||'None detected'}
+Subdomains found: ${S.results.subdomains?.map(s=>s.sub).join(', ')||'None'}
+Security Score: ${S.score}/100
+Checklist completion: ${CHECKLIST_STATE.size} items checked
+` : 'No scan data available yet.';
+
+  return `You are RECONX, an expert cybersecurity assistant specializing in web application security. You help developers — especially vibe coders who build with AI — audit and improve the security of their web apps.
+
+${S.domain ? `CURRENT SCAN DATA:\n${sd}` : ''}
+
+Guidelines:
+- Be concise, practical, and actionable
+- Give code examples when relevant
+- Focus on fixes the developer can implement TODAY
+- If asked about something not security-related, gently redirect
+- Use ${LANG === 'id' ? 'Bahasa Indonesia' : 'English'} in responses
+- Format with markdown for readability`;
+}
+
+// ════════════════════════════════════════════
+// AI CHAT
+// ════════════════════════════════════════════
+const SUGGESTIONS = {
+  en: ['Why is my security score low?','How to add HSTS in Nginx?','Explain CSP in simple terms','How to fix SQL injection?','Best practices for JWT tokens','How to setup HTTPS for free?'],
+  id: ['Kenapa security score saya rendah?','Cara tambah HSTS di Nginx?','Jelaskan CSP dengan bahasa sederhana','Cara fix SQL injection?','Best practices untuk JWT token','Cara setup HTTPS gratis?']
+};
+
+function renderChat() {
+  const wrap = document.getElementById('chatWrap');
+  const userHasKey = CFG.apiKey && CFG.apiKey.length > 10;
+  const aiReady = userHasKey || WORKER_READY;
+
+  if (!aiReady) {
+    wrap.innerHTML = `
+      <div class="chat-info-bar">
+        <div class="chat-info-left">${t('AI Chat — Configure API key to start', 'AI Chat — Konfigurasi API key untuk mulai')}</div>
+      </div>
+      <div class="no-api-warn">
+        ⚡ ${t('AI Chat needs an API key to work.', 'AI Chat memerlukan API key untuk berfungsi.')}<br><br>
+        <strong>${t('Option 1 (Easiest):', 'Opsi 1 (Termudah):')}</strong>
+        ${t('Get a free Groq key at', 'Dapatkan key Groq gratis di')} <a href="https://console.groq.com" target="_blank" rel="noopener">console.groq.com</a>
+        ${t('— no credit card needed.', '— tidak perlu kartu kredit.')}<br><br>
+        <strong>${t('Option 2:', 'Opsi 2:')}</strong>
+        ${t('Deploy Cloudflare Worker (see README) to host your own key.', 'Deploy Cloudflare Worker (lihat README) untuk host key kamu sendiri.')}<br><br>
+        <a onclick="openSettings()">⚙ ${t('Open Settings →', 'Buka Pengaturan →')}</a>
+      </div>`;
+    return;
+  }
+
+  const msgs = chatHistory.length
+    ? chatHistory.map(m => renderMsg(m.role, m.content)).join('')
+    : `<div class="chat-empty">
+        <div class="ce-icon">◈</div>
+        <div>${t('Ask anything about your security scan or web security in general.','Tanyakan apapun tentang hasil scan atau keamanan web secara umum.')}</div>
+        ${S.domain ? `<div style="color:var(--accent2);font-size:.65rem">${t('Scan data from','Data scan dari')} <strong>${S.domain}</strong> ${t('is loaded as context.','sudah dimuat sebagai konteks.')}</div>` : ''}
+        <div class="chat-suggestions">${SUGGESTIONS[LANG].map(s=>`<div class="chat-suggestion" onclick="sendSuggestion('${s}')">${s}</div>`).join('')}</div>
+      </div>`;
+
+  const modeLabel = userHasKey
+    ? `🔑 ${t('Your key','Key kamu')} · ${CFG.provider.toUpperCase()}`
+    : `⚡ ${t('Shared Worker','Worker Bersama')} · Groq`;
+
+  const modeBadgeColor = userHasKey ? 'var(--accent2)' : 'var(--accent)';
+
+  wrap.innerHTML = `
+    <div class="chat-info-bar">
+      <div class="chat-info-left">
+        ${S.domain ? `${t('Context:','Konteks:')} <strong>${S.domain}</strong> · ` : ''}${t('History:','Riwayat:')} <strong>${chatHistory.length}</strong> ${t('messages','pesan')}
+        ${chatHistory.length > 0 ? `· <span style="color:var(--danger);cursor:pointer" onclick="clearChat()">${t('Clear','Bersihkan')}</span>` : ''}
+      </div>
+      <div class="chat-model-badge">
+        <div class="api-dot" style="width:6px;height:6px;background:${modeBadgeColor};box-shadow:0 0 5px ${modeBadgeColor};border-radius:50%"></div>
+        ${modeLabel}
+      </div>
+    </div>
+    <div class="chat-messages" id="chatMsgs">${msgs}</div>
+    <div class="chat-input-wrap">
+      <textarea class="chat-textarea" id="chatInput" placeholder="${t('Ask about your security results, request fixes, or any security question...','Tanya tentang hasil scan, minta perbaikan, atau pertanyaan keamanan apapun...')}" onkeydown="chatKeydown(event)" rows="1"></textarea>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">${t('SEND ⟶','KIRIM ⟶')}</button>
+    </div>`;
+
+  const msgEl = document.getElementById('chatMsgs');
+  if (msgEl) msgEl.scrollTop = msgEl.scrollHeight;
+}
+
+function renderMsg(role, content) {
+  const avatar = role === 'user' ? t('YOU','KAMU') : 'AI';
+  const cls = role === 'user' ? 'user' : 'ai';
+  return `<div class="chat-msg ${cls}">
+    <div class="msg-avatar ${cls}">${avatar}</div>
+    <div class="msg-bubble">${fmtAI(content)}</div>
+  </div>`;
+}
+
+function chatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+function sendSuggestion(text) {
+  document.getElementById('chatInput').value = text;
+  sendChat();
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input?.value.trim();
+  if (!msg) return;
+  input.value = '';
+
+  chatHistory.push({ role:'user', content: msg });
+  renderChat();
+
+  const sendBtn = document.getElementById('chatSend');
+  if (sendBtn) { sendBtn.disabled = true; sendBtn.innerHTML = `<span class="spin"></span>`; }
+
+  // Add thinking bubble
+  const msgsEl = document.getElementById('chatMsgs');
+  if (msgsEl) {
+    const thinking = document.createElement('div');
+    thinking.className = 'chat-msg ai';
+    thinking.id = 'thinking-bubble';
+    thinking.innerHTML = `<div class="msg-avatar ai">AI</div><div class="msg-bubble"><span class="spin"></span> ${t('Thinking...','Berpikir...')}</div>`;
+    msgsEl.appendChild(thinking);
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+  }
+
+  try {
+    const messages = [
+      { role:'system', content: buildSystemPrompt() },
+      ...chatHistory
+    ];
+    const reply = await callAI(messages, 900);
+    document.getElementById('thinking-bubble')?.remove();
+    chatHistory.push({ role:'assistant', content: reply || t('No response','Tidak ada respons') });
+  } catch(e) {
+    document.getElementById('thinking-bubble')?.remove();
+    chatHistory.push({ role:'assistant', content: `⚠ ${t('Error:','Error:')} ${e.message}` });
+  }
+
+  renderChat();
+}
+
+function clearChat() {
+  chatHistory = [];
+  renderChat();
+}
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function gotoPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('pg-' + id).classList.add('active');
+  document.getElementById('nt-' + id).classList.add('active');
+  if (id === 'chat') renderChat();
+  if (id === 'history') renderHistory();
+}
+
+// ════════════════════════════════════════════
+// LANGUAGE
+// ════════════════════════════════════════════
+function setLang(l) {
+  LANG = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === l));
+  document.querySelectorAll('[data-en]').forEach(el => {
+    const val = el.getAttribute('data-' + l);
+    if (val !== null) el.innerHTML = val;
+  });
+  buildChecklist();
+  buildTips();
+  buildTools();
+  renderChat();
+}
+
+// ════════════════════════════════════════════
+// SCANNER
+// ════════════════════════════════════════════
+function setProgress(p) { document.getElementById('progressBar').style.width = p + '%'; }
+function setStatus(m) { document.getElementById('scanStatus').innerHTML = m; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function setModStat(idx, sts, body) {
+  const cards = document.querySelectorAll('.mod-card');
+  if (!cards[idx]) return;
+  cards[idx].querySelector('.mod-status').innerHTML = sts;
+  if (body !== undefined) cards[idx].querySelector('.mod-body').innerHTML = body;
+}
+function rrow(items) {
+  return items.map(([k, v, b]) =>
+    `<div class="rrow"><span class="rk">${k}</span><span class="rv">${v}</span>${b ? `<span class="badge ${b[0]}">${b[1]}</span>` : ''}</div>`
+  ).join('');
+}
+
+async function startScan() {
+  const raw = document.getElementById('targetInput').value.trim();
+  if (!raw) { alert(t('Enter a target domain!','Masukkan domain target!')); return; }
+  const domain = raw.replace(/^https?:\/\//,'').replace(/\/.*$/,'').trim();
+  S = { domain, startTime: Date.now(), results: {}, score: 0, issues: [] };
+
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spin"></span>${t('SCANNING...','MEMINDAI...')}`;
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('stackDetect').style.display = 'none';
+  setProgress(0);
+  setStatus(`<span class="spin"></span> ${t('Initializing...','Menginisialisasi...')}`);
+  await sleep(200);
+
+  await modRecon(domain);   setProgress(17);
+  await modDNS(domain);     setProgress(34);
+  await modSSL(domain);     setProgress(51);
+  await modHeaders(domain); setProgress(68);
+  await modPorts(domain);   setProgress(85);
+  await modSubs(domain);    setProgress(100);
+
+  calcScore();
+  buildReport(domain);
+  saveToHistory();
+
+  const dur = ((Date.now() - S.startTime) / 1000).toFixed(1);
+  setStatus(`<span class="t-g">✓ ${t('Scan complete','Scan selesai')} — ${dur}s</span> · <span class="t-c" style="cursor:pointer" onclick="gotoPage('report')">${t('View Report →','Lihat Laporan →')}</span> · <span class="t-p" style="cursor:pointer" onclick="gotoPage('chat')">${t('Ask AI →','Tanya AI →')}</span>`);
+  btn.disabled = false;
+  btn.innerHTML = `<span data-en="⟶ RE-SCAN" data-id="⟶ SCAN ULANG">⟶ ${t('RE-SCAN','SCAN ULANG')}</span>`;
+  document.getElementById('nt-report').classList.add('done');
+  document.getElementById('nt-chat').classList.add('done');
+}
+
+async function modRecon(domain) {
+  setModStat(0, `<span class="spin t-c"></span>`);
+  let d = {};
+  try { const r = await fetch(`https://ipwho.is/${domain}`); d = await r.json(); } catch(e){}
+  const info = {
+    ip: d.ip||'N/A', type: d.type||'N/A', country: d.country||'N/A',
+    city: d.city||'N/A', isp: d.connection?.isp||d.org||'N/A',
+    asn: d.connection?.asn||'N/A', lat: d.latitude||'', lon: d.longitude||'',
+    tz: d.timezone?.id||'N/A', proxy: d.security?.proxy||false,
+    vpn: d.security?.vpn||false, tor: d.security?.tor||false
+  };
+  S.results.recon = info;
+  setModStat(0, `<span class="t-g">✓ ${t('DONE','SELESAI')}</span>`, `<div>${rrow([
+    [t('IP Address','Alamat IP'), info.ip, ['b-info','IP']],
+    [t('Location','Lokasi'), `${info.city}, ${info.country}`, null],
+    ['ISP / Org', info.isp, null],
+    ['ASN', info.asn, null],
+    [t('Timezone','Zona Waktu'), info.tz, null],
+    ['Proxy/VPN/Tor', (info.proxy||info.vpn||info.tor)?`⚠ ${t('Detected','Terdeteksi')}`:t('Not detected','Tidak terdeteksi'), [(info.proxy||info.vpn||info.tor)?'b-warn':'b-ok',(info.proxy||info.vpn||info.tor)?t('FLAGGED','DITANDAI'):t('CLEAN','AMAN')]],
+  ])}</div>`);
+}
+
+async function modDNS(domain) {
+  setModStat(1, `<span class="spin t-c"></span>`);
+  const types = ['A','AAAA','MX','NS','TXT','CNAME','SOA'];
+  const dns = {};
+  for (const type of types) {
+    await sleep(120);
+    try {
+      const r = await fetch(`https://dns.google/resolve?name=${domain}&type=${type}`);
+      const d = await r.json();
+      dns[type] = (d.Answer||[]).map(a => a.data);
+    } catch(e) { dns[type] = []; }
+  }
+  const txt = dns.TXT||[];
+  const hasSPF = txt.some(x => x.includes('v=spf'));
+  const hasDMARC = txt.some(x => x.includes('v=DMARC'));
+  S.results.dns = { records: dns, hasSPF, hasDMARC };
+  setModStat(1, `<span class="t-g">✓ ${t('DONE','SELESAI')}</span>`, `
+    <div>${types.filter(tp => dns[tp]&&dns[tp].length).map(tp =>
+      `<div class="rrow"><span class="rk">${tp}</span><span class="rv" style="font-family:'Share Tech Mono',monospace;font-size:.65rem">${dns[tp].slice(0,2).join('<br>')}${dns[tp].length>2?`<br>+${dns[tp].length-2}...`:''}</span></div>`).join('')}
+    </div>
+    <div class="hline"></div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap">
+      <span class="badge ${hasSPF?'b-ok':'b-fail'}">SPF: ${hasSPF?'✓':'✗'}</span>
+      <span class="badge ${hasDMARC?'b-ok':'b-warn'}">DMARC: ${hasDMARC?'✓':'✗'}</span>
+    </div>`);
+}
+
+async function modSSL(domain) {
+  setModStat(2, `<span class="spin t-c"></span>`);
+  let ssl = { found: false };
+  try {
+    const r = await fetch(`https://crt.sh/?q=${domain}&output=json`);
+    const certs = await r.json();
+    if (certs && certs.length) {
+      const c = certs.sort((a,b) => new Date(b.not_before)-new Date(a.not_before))[0];
+      const days = Math.floor((new Date(c.not_after)-new Date())/86400000);
+      ssl = { found:true, issuer:c.issuer_name, subject:c.name_value, not_before:c.not_before, not_after:c.not_after, total:certs.length, days, expired:days<0, soon:days>=0&&days<30 };
+    }
+  } catch(e) {}
+  S.results.ssl = ssl;
+  if (!ssl.found) { setModStat(2, `<span class="t-y">? ${t('UNKNOWN','TIDAK DIKETAHUI')}</span>`, `<div class="empty"><div class="ei">⚠</div>${t('No cert data found','Data sertifikat tidak ditemukan')}</div>`); return; }
+  const dc = ssl.expired?'b-fail':ssl.soon?'b-warn':'b-ok';
+  const dt = ssl.expired?t('EXPIRED','KEDALUWARSA'):`${ssl.days}D ${t('LEFT','TERSISA')}`;
+  setModStat(2, `<span class="t-g">✓ ${t('DONE','SELESAI')}</span>`, `<div>${rrow([
+    [t('Issuer','Penerbit'), ssl.issuer?.split(',')[0]||'N/A', null],
+    [t('Valid Until','Berlaku Sampai'), ssl.not_after, [dc, dt]],
+    ['CT Entries', ssl.total+t(' certs',' sertifikat'), ['b-info','crt.sh']],
+  ])}</div>`);
+}
+
+async function modHeaders(domain) {
+  setModStat(3, `<span class="spin t-c"></span>`);
+  const fh = {};
+  let status = null;
+  for (const prefix of ['https://','http://']) {
+    try {
+      const r = await fetch(`https://corsproxy.io/?${encodeURIComponent(prefix+domain)}`, {signal:AbortSignal.timeout(8000)});
+      r.headers.forEach((v,k) => { fh[k.toLowerCase()] = v; });
+      status = r.status;
+      break;
+    } catch(e) {}
+  }
+
+  // Tech stack detection
+  const stack = [];
+  const sv = fh['server']||''; const xpb = fh['x-powered-by']||''; const all = sv+' '+xpb+' '+(fh['x-generator']||'');
+  if (all.match(/nginx/i)) stack.push('Nginx');
+  if (all.match(/apache/i)) stack.push('Apache');
+  if (all.match(/php/i)) stack.push('PHP');
+  if (all.match(/wordpress/i)||fh['x-pingback']) stack.push('WordPress');
+  if (all.match(/express/i)||all.match(/node/i)) stack.push('Node.js');
+  if (all.match(/laravel/i)) stack.push('Laravel');
+  if (all.match(/django/i)) stack.push('Django');
+  if (all.match(/rails/i)) stack.push('Ruby on Rails');
+  if (all.match(/next/i)||fh['x-nextjs-page']) stack.push('Next.js');
+  if (fh['x-vercel-id']) stack.push('Vercel');
+  if (fh['cf-ray']) stack.push('Cloudflare');
+  if (fh['x-amz-cf-id']||fh['x-amz-request-id']) stack.push('AWS');
+
+  S.results.stack = stack;
+  if (stack.length) {
+    const colors = {Nginx:'b-info',Apache:'b-warn','Node.js':'b-ok','Next.js':'b-ok',WordPress:'b-purple',PHP:'b-purple',Laravel:'b-warn',Django:'b-ok','Ruby on Rails':'b-fail',Vercel:'b-na',Cloudflare:'b-warn',AWS:'b-warn'};
+    document.getElementById('stackDetect').style.display = 'block';
+    document.getElementById('stackBadges').innerHTML = stack.map(s => `<span class="badge stack-badge ${colors[s]||'b-na'}">${s}</span>`).join('');
+  }
+
+  const checks = [
+    ['strict-transport-security','HSTS','b-fail','b-ok'],
+    ['content-security-policy','CSP','b-fail','b-ok'],
+    ['x-frame-options','X-Frame','b-fail','b-ok'],
+    ['x-content-type-options','X-CTO','b-warn','b-ok'],
+    ['referrer-policy','Referrer-Policy','b-warn','b-ok'],
+    ['permissions-policy','Permissions-Policy','b-na','b-ok'],
+  ];
+  let score = 0; const req = 4;
+  const rows = checks.map(([h,label,miss,hit]) => {
+    const v = fh[h]; const ok = v !== undefined;
+    if (ok && ['strict-transport-security','content-security-policy','x-frame-options','x-content-type-options'].includes(h)) score++;
+    return `<div class="rrow"><span class="rk">${label}</span><span class="rv" style="font-size:.6rem">${ok?v.slice(0,45)+(v.length>45?'...':''):'—'}</span><span class="badge ${ok?hit:miss}">${ok?'✓':'✗'}</span></div>`;
+  }).join('');
+  const leaks = ['server','x-powered-by','x-aspnet-version'].filter(h => fh[h]);
+  S.results.headers = { fh, score, req, statusCode: status, leaks };
+  const pct = Math.round(score/req*100);
+  setModStat(3, `<span class="t-g">✓ ${t('DONE','SELESAI')}</span>`, `
+    <div style="display:flex;justify-content:space-between;margin-bottom:7px">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted2)">HTTP ${status||'?'}</span>
+      <span class="badge ${pct>=75?'b-ok':pct>=50?'b-warn':'b-fail'}">${t('SCORE','SKOR')} ${pct}%</span>
+    </div>${rows}
+    ${leaks.length?`<div class="hline"></div><div class="rrow"><span class="rk">${t('Leaks','Kebocoran')}</span><span class="rv t-y">${leaks.map(l=>l+': '+fh[l]).join(' | ')}</span><span class="badge b-warn">${t('EXPOSED','TEREKSPOS')}</span></div>`:''}`);
+}
+
+async function modPorts(domain) {
+  setModStat(4, `<span class="spin t-c"></span>`);
+  const ports = [{p:21,s:'FTP'},{p:22,s:'SSH'},{p:23,s:'Telnet'},{p:25,s:'SMTP'},{p:53,s:'DNS'},{p:80,s:'HTTP'},{p:110,s:'POP3'},{p:143,s:'IMAP'},{p:443,s:'HTTPS'},{p:445,s:'SMB'},{p:3306,s:'MySQL'},{p:3389,s:'RDP'},{p:5432,s:'PostgreSQL'},{p:6379,s:'Redis'},{p:8080,s:'HTTP-Alt'},{p:8443,s:'HTTPS-Alt'},{p:27017,s:'MongoDB'}];
+  const results = [];
+  for (const {p,s} of ports) {
+    await sleep(80);
+    let status = 'closed';
+    try {
+      const c = new AbortController(); const tm = setTimeout(()=>c.abort(),900);
+      await fetch(`https://${domain}:${p}`,{signal:c.signal,mode:'no-cors'});
+      clearTimeout(tm); status = 'open';
+    } catch(e) { status = e.name==='AbortError'?'filtered':'closed'; }
+    if (p===80||p===443) status='open';
+    if (p===53&&S.results.dns?.records?.A?.length) status='open';
+    results.push({p,s,status});
+  }
+  const open = results.filter(r=>r.status==='open');
+  S.results.ports = {results, open};
+  setModStat(4, `<span class="t-g">✓ ${t('DONE','SELESAI')}</span>`, `
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px">${open.map(r=>`<span class="badge b-ok">${r.p}/${r.s}</span>`).join('')}${!open.length?`<span class="badge b-na">${t('None','Tidak ada')}</span>`:''}</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--muted)">${t('Scanned','Dipindai')} ${results.length} · ${open.length} ${t('open','terbuka')}</div>`);
+}
+
+async function modSubs(domain) {
+  setModStat(5, `<span class="spin t-c"></span>`);
+  const wl = ['www','mail','ftp','admin','api','dev','staging','blog','shop','cdn','app','portal','vpn','test','demo','beta','auth','login','secure','dashboard','mobile','m','static','assets','media','docs','wiki','support','status'];
+  const found = [];
+  for (const sub of wl) {
+    await sleep(50);
+    try {
+      const r = await fetch(`https://dns.google/resolve?name=${sub}.${domain}&type=A`,{signal:AbortSignal.timeout(1200)});
+      const d = await r.json();
+      if (d.Answer&&d.Answer.length) found.push({sub:`${sub}.${domain}`,ip:d.Answer[0].data});
+    } catch(e){}
+  }
+  S.results.subdomains = found;
+  setModStat(5, `<span class="t-g">✓ ${t('DONE','SELESAI')}</span>`,
+    found.length
+      ? `<div>${found.map(f=>`<div class="rrow"><span class="rk" style="min-width:155px">${f.sub}</span><span class="rv">${f.ip}</span><span class="badge b-info">LIVE</span></div>`).join('')}</div>`
+      : `<div class="empty"><div class="ei">—</div>${t('No subdomains found','Tidak ada subdomain')}</div>`);
+}
+
+// ════════════════════════════════════════════
+// SCORE & ISSUES
+// ════════════════════════════════════════════
+function calcScore() {
+  let score = 100; const issues = [];
+  const r = S.results;
+  if (r.dns) {
+    if (!r.dns.hasSPF) { issues.push({sev:'HIGH',t:t('SPF Record Missing','SPF Record Tidak Ada'),fix:t('Add TXT: v=spf1 include:_spf.mail.com ~all','Tambah TXT: v=spf1 include:_spf.mail.com ~all')}); score-=8; }
+    if (!r.dns.hasDMARC) { issues.push({sev:'MEDIUM',t:t('DMARC Record Missing','DMARC Record Tidak Ada'),fix:t('Add _dmarc TXT: v=DMARC1; p=quarantine; rua=mailto:dmarc@domain.com','Tambah TXT di _dmarc: v=DMARC1; p=quarantine; rua=mailto:dmarc@domain.com')}); score-=5; }
+  }
+  if (r.ssl) {
+    if (!r.ssl.found) { issues.push({sev:'HIGH',t:t('SSL Certificate Not Found','Sertifikat SSL Tidak Ditemukan'),fix:t('Setup HTTPS: certbot --nginx -d domain.com','Setup HTTPS: certbot --nginx -d domain.com')}); score-=12; }
+    else if (r.ssl.expired) { issues.push({sev:'CRITICAL',t:t('SSL Certificate EXPIRED','Sertifikat SSL KEDALUWARSA'),fix:t('Renew: certbot renew && systemctl reload nginx','Renew: certbot renew && systemctl reload nginx')}); score-=25; }
+    else if (r.ssl.soon) { issues.push({sev:'MEDIUM',t:t(`SSL Expires in ${r.ssl.days} Days`,`SSL Kedaluwarsa dalam ${r.ssl.days} Hari`),fix:t('Setup auto-renew: certbot renew --dry-run','Setup auto-renew: certbot renew --dry-run')}); score-=8; }
+  }
+  if (r.headers) {
+    const fh = r.headers.fh;
+    if (!fh['strict-transport-security']) { issues.push({sev:'HIGH',t:'HSTS Missing',fix:t('Add header: Strict-Transport-Security: max-age=31536000; includeSubDomains','Tambah header: Strict-Transport-Security: max-age=31536000; includeSubDomains')}); score-=12; }
+    if (!fh['content-security-policy']) { issues.push({sev:'HIGH',t:'CSP Missing',fix:t("Add header: Content-Security-Policy: default-src 'self'",'Tambah header: Content-Security-Policy: default-src \'self\'')}); score-=10; }
+    if (!fh['x-frame-options']) { issues.push({sev:'MEDIUM',t:'X-Frame-Options Missing',fix:t('Add header: X-Frame-Options: DENY','Tambah header: X-Frame-Options: DENY')}); score-=7; }
+    if (!fh['x-content-type-options']) { issues.push({sev:'LOW',t:'X-Content-Type-Options Missing',fix:t('Add header: X-Content-Type-Options: nosniff','Tambah header: X-Content-Type-Options: nosniff')}); score-=4; }
+    if (r.headers.leaks.length) { issues.push({sev:'LOW',t:t(`Server Info Exposed`,`Info Server Terekspos`),fix:t('Hide Server and X-Powered-By in web server config','Sembunyikan header Server & X-Powered-By di konfigurasi web server')}); score-=3; }
+  }
+  S.score = Math.max(0, score);
+  S.issues = issues;
+}
+
+// ════════════════════════════════════════════
+// HISTORY
+// ════════════════════════════════════════════
+function saveToHistory() {
+  SCAN_HISTORY.unshift({
+    id: Date.now(),
+    domain: S.domain,
+    date: new Date().toLocaleString(),
+    score: S.score,
+    issues: S.issues.length,
+    results: JSON.parse(JSON.stringify(S.results)),
+    issuesData: JSON.parse(JSON.stringify(S.issues)),
+  });
+  if (SCAN_HISTORY.length > 20) SCAN_HISTORY = SCAN_HISTORY.slice(0,20);
+}
+
+function renderHistory() {
+  const container = document.getElementById('histContainer');
+  if (!SCAN_HISTORY.length) {
+    container.innerHTML = `<div class="hist-empty"><div class="ei" style="font-size:2rem;opacity:.18">◈</div>${t('No scan history yet. Run a scan to start tracking.','Belum ada riwayat scan. Jalankan scan untuk mulai tracking.')}</div>`;
+    document.getElementById('compareSection').classList.remove('show');
+    return;
+  }
+  container.innerHTML = `<div class="hist-grid">${SCAN_HISTORY.map(h => {
+    const sc = h.score>=80?'var(--accent2)':h.score>=60?'var(--warn)':'var(--danger)';
+    const selected = selectedCompare.includes(h.id);
+    return `<div class="hist-card ${selected?'':''}` + `" onclick="toggleCompare(${h.id})" style="${selected?'border-color:var(--accent)':''}">
+      <div class="hist-card-head">
+        <div class="hist-domain">${h.domain}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          ${selected?`<span class="badge b-info">${t('SELECTED','DIPILIH')}</span>`:''}
+          <div class="hist-date">${h.date}</div>
+        </div>
+      </div>
+      <div class="hist-card-body">
+        <div class="hist-score-row">
+          <div>
+            <div class="hist-score-num" style="color:${sc}">${h.score}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:.55rem;color:var(--muted2)">${t('SCORE','SKOR')}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:'Orbitron',monospace;font-size:1rem;color:var(--danger)">${h.issues}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:.55rem;color:var(--muted2)">${t('ISSUES','MASALAH')}</div>
+          </div>
+        </div>
+        <div class="hist-mini-bar"><div class="hist-mini-fill" style="width:${h.score}%;background:${sc}"></div></div>
+        <div class="hist-tags">
+          ${h.results.dns?.hasSPF?`<span class="badge b-ok">SPF ✓</span>`:`<span class="badge b-fail">SPF ✗</span>`}
+          ${h.results.ssl?.found&&!h.results.ssl?.expired?`<span class="badge b-ok">SSL ✓</span>`:`<span class="badge b-fail">SSL ✗</span>`}
+          ${(h.results.headers?.score||0)>=(h.results.headers?.req||4)?`<span class="badge b-ok">${t('Headers ✓','Header ✓')}</span>`:`<span class="badge b-warn">${t('Headers ✗','Header ✗')}</span>`}
+        </div>
+      </div>
+    </div>`;
+  }).join('')}</div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--muted2);margin-top:10px;text-align:center">
+    ${t('Click cards to select for comparison (max 2)','Klik kartu untuk memilih perbandingan (maks 2)')}
+  </div>`;
+}
+
+function toggleCompare(id) {
+  const idx = selectedCompare.indexOf(id);
+  if (idx > -1) { selectedCompare.splice(idx,1); }
+  else if (selectedCompare.length < 2) { selectedCompare.push(id); }
+  else { selectedCompare = [selectedCompare[1], id]; }
+  renderHistory();
+  if (selectedCompare.length === 2) showComparison();
+  else document.getElementById('compareSection').classList.remove('show');
+}
+
+function showComparison() {
+  const [a, b] = selectedCompare.map(id => SCAN_HISTORY.find(h => h.id === id));
+  if (!a || !b) return;
+  const newer = a.id > b.id ? a : b;
+  const older = a.id > b.id ? b : a;
+
+  const metrics = [
+    [t('Security Score','Skor Keamanan'), older.score, newer.score, true],
+    [t('Issues Found','Masalah'), older.issues, newer.issues, false],
+    ['SPF', older.results.dns?.hasSPF?1:0, newer.results.dns?.hasSPF?1:0, true],
+    ['DMARC', older.results.dns?.hasDMARC?1:0, newer.results.dns?.hasDMARC?1:0, true],
+    [t('Header Score','Skor Header'), older.results.headers?.score||0, newer.results.headers?.score||0, true],
+    [t('SSL Valid','SSL Valid'), (!older.results.ssl?.expired&&older.results.ssl?.found)?1:0, (!newer.results.ssl?.expired&&newer.results.ssl?.found)?1:0, true],
+  ];
+
+  document.getElementById('compareSection').classList.add('show');
+  document.getElementById('compareContent').innerHTML = `
+    <div style="display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted2)">${t('Older:','Lebih Lama:')} <strong style="color:var(--text)">${older.domain} · ${older.date}</strong></div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted2)">${t('Newer:','Lebih Baru:')} <strong style="color:var(--accent2)">${newer.domain} · ${newer.date}</strong></div>
+    </div>
+    <div>${metrics.map(([label, ov, nv, higherBetter]) => {
+      const improved = higherBetter ? nv > ov : nv < ov;
+      const worse = higherBetter ? nv < ov : nv > ov;
+      const cls = improved?'diff-improved':worse?'diff-worse':'diff-same';
+      const arrow = improved?'↑':worse?'↓':'→';
+      const fmt = v => typeof v === 'number' && v <= 1 ? (v?'YES':'NO') : v;
+      return `<div class="diff-row">
+        <span style="color:var(--muted2);font-family:'Share Tech Mono',monospace;font-size:.65rem">${label}</span>
+        <span style="font-family:'Share Tech Mono',monospace;font-size:.65rem">${fmt(ov)} → <span class="${cls}">${fmt(nv)} ${arrow}</span></span>
+      </div>`;
+    }).join('')}</div>`;
+}
+
+function clearHistory() {
+  if (confirm(t('Clear all scan history?','Hapus semua riwayat scan?'))) {
+    SCAN_HISTORY = []; selectedCompare = [];
+    renderHistory();
+    showToast(t('History cleared','Riwayat dihapus'), 'ok');
+  }
+}
+
+// ════════════════════════════════════════════
+// CHECKLIST
+// ════════════════════════════════════════════
+const CHECKS_DATA = [
+  {catEn:'A01 — Broken Access Control',catId:'A01 — Kontrol Akses Rusak',sev:'CRITICAL',items:[
+    {id:'a01_1',en:'All API endpoints have authentication & authorization',id_:'Semua endpoint API memiliki autentikasi & autorisasi',dEn:'No endpoint accessible without valid token/session.',dId:'Tidak ada endpoint yang bisa diakses tanpa token/session valid.'},
+    {id:'a01_2',en:'Role-based access control (RBAC) implemented server-side',id_:'RBAC diterapkan di server-side',dEn:'Regular users cannot access admin features. Validate server-side.',dId:'User biasa tidak bisa akses fitur admin. Validasi di server-side.'},
+    {id:'a01_3',en:'IDOR (Insecure Direct Object Reference) prevented',id_:'IDOR dicegah',dEn:'Users cannot access other users resources by changing IDs.',dId:'User tidak bisa akses resource orang lain dengan mengubah ID.'},
+    {id:'a01_4',en:'Directory listing disabled',id_:'Directory listing dinonaktifkan',dEn:'Server does not expose folder contents publicly.',dId:'Server tidak menampilkan isi folder secara publik.'},
+  ]},
+  {catEn:'A02 — Cryptographic Failures',catId:'A02 — Kegagalan Kriptografi',sev:'CRITICAL',items:[
+    {id:'a02_1',en:'Passwords hashed with bcrypt/argon2 (never plaintext)',id_:'Password di-hash dengan bcrypt/argon2 (bukan plaintext)',dEn:'Never store plain passwords.',dId:'Jangan pernah simpan password plaintext.'},
+    {id:'a02_2',en:'HTTPS enforced across entire application',id_:'HTTPS digunakan di seluruh aplikasi',dEn:'No HTTP connections carrying sensitive data.',dId:'Tidak ada koneksi HTTP yang membawa data sensitif.'},
+    {id:'a02_3',en:'No secrets in public repositories',id_:'Tidak ada secret di public repository',dEn:'API keys, JWT secrets, DB credentials not in public repos.',dId:'API keys, JWT secret, DB credentials tidak di public repo.'},
+    {id:'a02_4',en:'Cookies use Secure & HttpOnly flags',id_:'Cookies menggunakan flag Secure & HttpOnly',dEn:'Session cookies cannot be stolen via JS or plain HTTP.',dId:'Session cookie tidak bisa dicuri via JS atau HTTP biasa.'},
+  ]},
+  {catEn:'A03 — Injection',catId:'A03 — Injeksi',sev:'HIGH',items:[
+    {id:'a03_1',en:'All user inputs validated & sanitized',id_:'Semua input user divalidasi & di-sanitize',dEn:'No raw user input goes directly into SQL, commands, or HTML.',dId:'Tidak ada raw user input yang langsung masuk ke SQL, command, atau HTML.'},
+    {id:'a03_2',en:'Parameterized queries / ORM used for all DB operations',id_:'Parameterized queries / ORM digunakan untuk semua operasi DB',dEn:'No string concatenation in SQL queries.',dId:'Tidak ada string concatenation dalam query SQL.'},
+    {id:'a03_3',en:'XSS prevention: all output properly escaped',id_:'XSS prevention: semua output di-escape dengan benar',dEn:'User output escaped before rendering in HTML.',dId:'Output user di-escape sebelum dirender di HTML.'},
+    {id:'a03_4',en:'Template injection prevented',id_:'Template injection dicegah',dEn:'User input not processed as template (Jinja2, Handlebars, etc.)',dId:'Input user tidak diproses sebagai template (Jinja2, Handlebars, dll).'},
+  ]},
+  {catEn:'A04 — Insecure Design',catId:'A04 — Desain Tidak Aman',sev:'HIGH',items:[
+    {id:'a04_1',en:'Rate limiting on login, OTP, password reset endpoints',id_:'Rate limiting di endpoint login, OTP, reset password',dEn:'Limit attempts to prevent brute force.',dId:'Batasi percobaan untuk mencegah brute force.'},
+    {id:'a04_2',en:'Business logic validated server-side (prices, stock, etc.)',id_:'Business logic divalidasi server-side (harga, stok, dll)',dEn:'Cannot be manipulated from client.',dId:'Tidak bisa dimanipulasi dari client.'},
+    {id:'a04_3',en:'Error messages do not leak sensitive info',id_:'Error messages tidak leak informasi sensitif',dEn:'Stack traces, file paths, SQL not shown to users.',dId:'Stack trace, path file, SQL tidak ditampilkan ke user.'},
+  ]},
+  {catEn:'A05 — Security Misconfiguration',catId:'A05 — Konfigurasi Salah',sev:'HIGH',items:[
+    {id:'a05_1',en:'Security HTTP headers configured (HSTS, CSP, X-Frame)',id_:'Security headers HTTP terpasang (HSTS, CSP, X-Frame)',dEn:'All major security headers present.',dId:'Semua security header utama terpasang.'},
+    {id:'a05_2',en:'Default credentials changed',id_:'Default credentials diubah',dEn:'Default admin, DB, panel passwords changed.',dId:'Password default admin, DB, panel sudah diganti.'},
+    {id:'a05_3',en:'Debug mode OFF in production',id_:'Debug mode MATI di production',dEn:'No DEBUG=true, verbose errors in production.',dId:'Tidak ada DEBUG=true, verbose error di production.'},
+    {id:'a05_4',en:'Unnecessary features/endpoints disabled',id_:'Fitur/endpoint yang tidak perlu dinonaktifkan',dEn:'Admin panels, phpMyAdmin not publicly exposed.',dId:'Admin panel, phpMyAdmin tidak exposed ke publik.'},
+  ]},
+  {catEn:'A06 — Vulnerable Components',catId:'A06 — Komponen Rentan',sev:'MEDIUM',items:[
+    {id:'a06_1',en:'Dependencies audited (npm audit / pip check)',id_:'Dependencies diaudit (npm audit / pip check)',dEn:'Run security audits regularly.',dId:'Jalankan audit keamanan secara rutin.'},
+    {id:'a06_2',en:'No deprecated/abandoned libraries',id_:'Tidak ada library deprecated/abandoned',dEn:'Use actively maintained libraries.',dId:'Gunakan library yang masih aktif di-maintain.'},
+    {id:'a06_3',en:'Lock file committed (package-lock.json / yarn.lock)',id_:'Lock file di-commit',dEn:'Consistent dependency versions across environments.',dId:'Versi dependency konsisten di semua environment.'},
+  ]},
+  {catEn:'A07 — Auth & Session Failures',catId:'A07 — Kegagalan Auth & Sesi',sev:'CRITICAL',items:[
+    {id:'a07_1',en:'Strong password policy enforced',id_:'Password policy kuat diterapkan',dEn:'Reject weak passwords. Min 8 chars, mixed.',dId:'Tolak password lemah. Min 8 karakter, kombinasi.'},
+    {id:'a07_2',en:'MFA available for admin and critical operations',id_:'MFA tersedia untuk admin dan operasi kritis',dEn:'Multi-factor authentication for sensitive actions.',dId:'Multi-factor authentication untuk aksi sensitif.'},
+    {id:'a07_3',en:'Session truly invalidated on logout (server-side)',id_:'Session benar-benar diinvalidasi saat logout (server-side)',dEn:'Tokens/sessions deleted on server when user logs out.',dId:'Token/session dihapus di server saat user logout.'},
+    {id:'a07_4',en:'JWT uses secure algorithm, signature validated',id_:'JWT menggunakan algoritma aman, signature divalidasi',dEn:'Never use algorithm none. Validate properly.',dId:'Jangan gunakan algorithm none. Validasi dengan benar.'},
+  ]},
+  {catEn:'A08 — Data Integrity',catId:'A08 — Integritas Data',sev:'MEDIUM',items:[
+    {id:'a08_1',en:'SRI hashes on CDN scripts/styles',id_:'SRI hash pada CDN script/style',dEn:'Add integrity hash to script and link CDN tags.',dId:'Tambah integrity hash pada tag script dan link CDN.'},
+    {id:'a08_2',en:'File uploads: type, size, content validated',id_:'File upload: type, size, content divalidasi',dEn:'No .php, .exe, or dangerous files can be uploaded.',dId:'Tidak bisa upload .php, .exe, atau file berbahaya.'},
+    {id:'a08_3',en:'CI/CD pipeline secured',id_:'CI/CD pipeline aman',dEn:'Use trusted actions, pin to commit hash.',dId:'Gunakan action terpercaya, pin ke commit hash.'},
+  ]},
+  {catEn:'A09 — Logging & Monitoring',catId:'A09 — Logging & Monitoring',sev:'MEDIUM',items:[
+    {id:'a09_1',en:'Security events logged (failed logins, access denied)',id_:'Security events di-log (login gagal, akses ditolak)',dEn:'All suspicious access and auth errors recorded.',dId:'Semua akses mencurigakan dan error auth tercatat.'},
+    {id:'a09_2',en:'Logs never contain passwords or tokens',id_:'Log tidak pernah berisi password atau token',dEn:'Redact sensitive data before logging.',dId:'Redact data sensitif sebelum logging.'},
+    {id:'a09_3',en:'Alerts configured for suspicious activity',id_:'Alert dikonfigurasi untuk aktivitas mencurigakan',dEn:'Brute force, traffic anomalies trigger notifications.',dId:'Brute force, anomali traffic memicu notifikasi.'},
+  ]},
+  {catEn:'A10 — SSRF',catId:'A10 — SSRF',sev:'HIGH',items:[
+    {id:'a10_1',en:'URL inputs validated & allowlisted',id_:'URL input divalidasi & di-allowlist',dEn:'If app fetches URLs from user input, validate allowed domains.',dId:'Jika app fetch URL dari input user, validasi domain yang diizinkan.'},
+    {id:'a10_2',en:'Cloud metadata endpoints blocked (169.254.169.254)',id_:'Metadata endpoint cloud diblokir (169.254.169.254)',dEn:'Block access to cloud metadata from app layer.',dId:'Blokir akses ke metadata cloud dari application layer.'},
+  ]},
+  {catEn:'BONUS — Vibe Coding',catId:'BONUS — Vibe Coding',sev:'HIGH',items:[
+    {id:'vibe_1',en:'.env not committed to repository (.gitignore)',id_:'.env tidak di-commit ke repository (.gitignore)',dEn:'Add .env to .gitignore. Use env vars in production.',dId:'Tambah .env ke .gitignore. Gunakan env vars di production.'},
+    {id:'vibe_2',en:'No API keys hardcoded in frontend/client code',id_:'Tidak ada API keys hardcoded di frontend/client',dEn:'Frontend code is inspectable. Never put secrets there.',dId:'Frontend code bisa di-inspect. Jangan taruh secret di sana.'},
+    {id:'vibe_3',en:'CORS configured correctly (no wildcard *)',id_:'CORS dikonfigurasi dengan benar (tidak ada wildcard *)',dEn:'Explicitly whitelist allowed origins.',dId:'Whitelist origin yang diizinkan secara eksplisit.'},
+    {id:'vibe_4',en:'Database port not exposed to internet',id_:'Port database tidak exposed ke internet',dEn:'MongoDB, MySQL, Redis only on localhost or VPN.',dId:'MongoDB, MySQL, Redis hanya di localhost atau VPN.'},
+    {id:'vibe_5',en:'AI-generated code reviewed for security issues',id_:'Kode yang digenerate AI di-review untuk security',dEn:'AI code can contain vulns. Review auth and data access logic.',dId:'Kode AI bisa mengandung vulnerability. Review logika auth dan akses data.'},
+  ]},
+];
+
+function buildChecklist() {
+  const sevC = {CRITICAL:'b-fail',HIGH:'b-warn',MEDIUM:'b-info',LOW:'b-na'};
+  const total = CHECKS_DATA.reduce((a,s)=>a+s.items.length,0);
+  document.getElementById('cl-total').textContent = total;
+  document.getElementById('cl-container').innerHTML = CHECKS_DATA.map(sec => `
+    <div class="owasp-sec">
+      <div class="os-head"><span class="badge ${sevC[sec.sev]}">${sec.sev}</span> ${LANG==='id'?sec.catId:sec.catEn}</div>
+      <div class="os-items">
+        ${sec.items.map(item=>`
+          <div class="chk-item ${CHECKLIST_STATE.has(item.id)?'checked':''}" onclick="toggleCheck('${item.id}')">
+            <div class="chk-box">${CHECKLIST_STATE.has(item.id)?'✓':''}</div>
+            <div class="chk-main">
+              <div class="chk-name">${LANG==='id'?item.id_:item.en}</div>
+              <div class="chk-desc">${LANG==='id'?item.dId:item.dEn}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+  updateClProg();
+}
+
+function toggleCheck(id) {
+  CHECKLIST_STATE.has(id) ? CHECKLIST_STATE.delete(id) : CHECKLIST_STATE.add(id);
+  const el = document.querySelector(`[onclick="toggleCheck('${id}')"]`);
+  if (el) { el.classList.toggle('checked', CHECKLIST_STATE.has(id)); el.querySelector('.chk-box').textContent = CHECKLIST_STATE.has(id)?'✓':''; }
+  updateClProg();
+}
+
+function updateClProg() {
+  const total = CHECKS_DATA.reduce((a,s)=>a+s.items.length,0);
+  const done = CHECKLIST_STATE.size;
+  const pct = Math.round(done/total*100);
+  const critTot = CHECKS_DATA.filter(s=>s.sev==='CRITICAL').reduce((a,s)=>a+s.items.length,0);
+  const critDone = CHECKS_DATA.filter(s=>s.sev==='CRITICAL').reduce((a,s)=>a+s.items.filter(i=>CHECKLIST_STATE.has(i.id)).length,0);
+  document.getElementById('cl-pct').textContent = pct+'%';
+  document.getElementById('cl-bar').style.width = pct+'%';
+  document.getElementById('cl-done').textContent = done;
+  document.getElementById('cl-total').textContent = total;
+  document.getElementById('cl-crit').textContent = critTot-critDone;
+}
+
+async function runAIAnalysis() {
+  if (!CFG.apiKey && !WORKER_READY) { openSettings(); return; }
+  const btn = document.getElementById('aiAnalyzeBtn');
+  btn.disabled = true; btn.innerHTML = `<span class="spin"></span>${t('ANALYZING...','MENGANALISIS...')}`;
+  const unchecked = CHECKS_DATA.flatMap(s=>s.items.filter(i=>!CHECKLIST_STATE.has(i.id)).map(i=>({sev:s.sev,name:i.en})));
+  const prompt = t(
+    `Security audit analysis:\nDomain: ${S.domain||'Not scanned'}\nScore: ${S.score}/100\nCompleted checklist: ${CHECKLIST_STATE.size}/${CHECKS_DATA.reduce((a,s)=>a+s.items.length,0)}\nTop unchecked:\n${unchecked.slice(0,10).map(i=>`- [${i.sev}] ${i.name}`).join('\n')}\n\nProvide: 3-5 critical findings with specific code fixes. Be concise and actionable.`,
+    `Analisis audit keamanan:\nDomain: ${S.domain||'Belum di-scan'}\nScore: ${S.score}/100\nChecklist selesai: ${CHECKLIST_STATE.size}/${CHECKS_DATA.reduce((a,s)=>a+s.items.length,0)}\nItem belum dicentang:\n${unchecked.slice(0,10).map(i=>`- [${i.sev}] ${i.name}`).join('\n')}\n\nBerikan: 3-5 temuan kritis dengan perbaikan kode yang spesifik. Singkat dan actionable.`
+  );
+  const el = document.getElementById('aiAnalyzeResp');
+  const txt = document.getElementById('aiAnalyzeText');
+  el.classList.add('show');
+  txt.innerHTML = `<span class="spin"></span> ${t('AI is analyzing...','AI sedang menganalisis...')}`;
+  try {
+    const r = await callAI([{role:'system',content:buildSystemPrompt()},{role:'user',content:prompt}], 900);
+    txt.innerHTML = fmtAI(r||t('No response','Tidak ada respons'));
+  } catch(e) { txt.innerHTML = `<span class="t-r">Error: ${e.message}</span>`; }
+  btn.disabled = false;
+  btn.innerHTML = `<span data-en="◈ AI ANALYZE" data-id="◈ ANALISIS AI">${t('◈ AI ANALYZE','◈ ANALISIS AI')}</span>`;
+}
+
+// ════════════════════════════════════════════
+// TIPS
+// ════════════════════════════════════════════
+const TIPS_DATA = [
+  {icon:'🔑',catEn:'AUTH',catId:'AUTH',catC:'b-fail',filter:'auth',
+   tEn:'Use bcrypt for password hashing',tId:'Gunakan bcrypt untuk hash password',
+   dEn:'Never store plain passwords. bcrypt handles salting automatically and is slow by design.',
+   dId:'Jangan simpan password plaintext. bcrypt menangani salting otomatis dan lambat by design.',
+   code:`const bcrypt = require('bcrypt');
+// Hash password
+const hash = await bcrypt.hash(password, 12);
+// Verify
+const valid = await bcrypt.compare(input, hash);`},
+  {icon:'🛡️',catEn:'HEADERS',catId:'HEADERS',catC:'b-warn',filter:'headers',
+   tEn:'Add all security headers with Helmet.js',tId:'Tambahkan semua security headers dengan Helmet.js',
+   dEn:'One line adds HSTS, CSP, X-Frame-Options, and 8+ other headers automatically.',
+   dId:'Satu baris menambahkan HSTS, CSP, X-Frame-Options, dan 8+ header lainnya secara otomatis.',
+   code:`const helmet = require('helmet');
+app.use(helmet()); // adds 8+ headers
+
+// Custom CSP
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'"],
+  }
+}));`},
+  {icon:'💉',catEn:'INJECTION',catId:'INJEKSI',catC:'b-fail',filter:'injection',
+   tEn:'Always use parameterized queries',tId:'Selalu gunakan parameterized queries',
+   dEn:'Never concatenate user input into SQL. Use prepared statements or ORM.',
+   dId:'Jangan pernah concatenate input user ke SQL. Gunakan prepared statements atau ORM.',
+   code:`// ❌ VULNERABLE
+const q = "SELECT * FROM users WHERE id = "+id;
+
+// ✅ SAFE — parameterized
+const q = "SELECT * FROM users WHERE id = ?";
+db.query(q, [req.params.id]);
+
+// ✅ SAFE — Prisma ORM
+const user = await prisma.user.findUnique({
+  where: { id: parseInt(req.params.id) }
+});`},
+  {icon:'⚡',catEn:'RATE LIMIT',catId:'RATE LIMIT',catC:'b-warn',filter:'auth',
+   tEn:'Rate limit all sensitive endpoints',tId:'Rate limit semua endpoint sensitif',
+   dEn:'Prevent brute force attacks on login, register, and password reset.',
+   dId:'Cegah brute force di endpoint login, register, dan reset password.',
+   code:`const rateLimit = require('express-rate-limit');
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 5, // 5 attempts max
+  message: { error: 'Too many attempts' },
+  standardHeaders: true,
+});
+app.post('/login', loginLimiter, handler);`},
+  {icon:'🌐',catEn:'CORS',catId:'CORS',catC:'b-warn',filter:'config',
+   tEn:'Configure CORS properly — no wildcard',tId:'Konfigurasi CORS dengan benar — tidak ada wildcard',
+   dEn:'Never use * in production. Explicitly whitelist allowed origins.',
+   dId:'Jangan gunakan * di production. Whitelist origin yang diizinkan secara eksplisit.',
+   code:`const cors = require('cors');
+app.use(cors({
+  origin: [
+    'https://yourapp.com',
+    'https://www.yourapp.com'
+  ],
+  methods: ['GET','POST','PUT','DELETE'],
+  credentials: true,
+}));`},
+  {icon:'🔐',catEn:'SECRETS',catId:'SECRETS',catC:'b-fail',filter:'config',
+   tEn:'Never hardcode secrets — use .env',tId:'Jangan hardcode secrets — gunakan .env',
+   dEn:'All secrets must live in environment variables, never in source code.',
+   dId:'Semua secret harus di environment variables, tidak pernah di source code.',
+   code:`# .gitignore — REQUIRED!
+.env
+.env.local
+
+# .env
+DATABASE_URL=postgresql://user:pass@host/db
+JWT_SECRET=your-super-long-random-secret
+API_KEY=sk-...
+
+# Usage
+const secret = process.env.JWT_SECRET;`},
+  {icon:'🍪',catEn:'SESSION',catId:'SESI',catC:'b-fail',filter:'auth',
+   tEn:'Secure cookie configuration',tId:'Konfigurasi cookie yang aman',
+   dEn:'Always set HttpOnly, Secure, and SameSite flags to prevent theft and CSRF.',
+   dId:'Selalu set flag HttpOnly, Secure, dan SameSite untuk mencegah pencurian dan CSRF.',
+   code:`app.use(session({
+  secret: process.env.SESSION_SECRET,
+  cookie: {
+    httpOnly: true,    // no JS access
+    secure: true,      // HTTPS only
+    sameSite: 'strict',// CSRF protection
+    maxAge: 3600000    // 1 hour
+  }
+}));`},
+  {icon:'📦',catEn:'DEPS',catId:'DEPS',catC:'b-info',filter:'deps',
+   tEn:'Audit dependencies before every deploy',tId:'Audit dependencies sebelum setiap deploy',
+   dEn:'Scan for known vulnerabilities in your packages.',
+   dId:'Scan vulnerability yang diketahui di packages kamu.',
+   code:`# Node.js
+npm audit
+npm audit fix
+
+# Python
+pip install safety
+safety check
+
+# PHP
+composer audit`},
+  {icon:'🔍',catEn:'VALIDATION',catId:'VALIDASI',catC:'b-warn',filter:'injection',
+   tEn:'Validate all inputs with Zod / Joi',tId:'Validasi semua input dengan Zod / Joi',
+   dEn:'Use schema validation to strictly validate all incoming data.',
+   dId:'Gunakan validasi schema untuk memvalidasi semua data yang masuk.',
+   code:`import { z } from 'zod';
+
+const loginSchema = z.object({
+  email: z.string().email().max(255),
+  password: z.string().min(8).max(128),
+});
+
+app.post('/login', (req, res) => {
+  const result = loginSchema.safeParse(req.body);
+  if (!result.success) return res.status(400).json({ error: 'Invalid' });
+  // safe to use result.data
+});`},
+  {icon:'📤',catEn:'FILE UPLOAD',catId:'FILE UPLOAD',catC:'b-warn',filter:'injection',
+   tEn:'Validate file uploads by content, not extension',tId:'Validasi upload file berdasarkan konten, bukan ekstensi',
+   dEn:'Always verify file type from magic bytes, not just filename extension.',
+   dId:'Selalu verifikasi tipe file dari magic bytes, bukan hanya ekstensi nama file.',
+   code:`const { fromBuffer } = require('file-type');
+const multer = require('multer');
+
+const upload = multer({
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: async (req, file, cb) => {
+    const allowed = ['image/jpeg','image/png','image/webp'];
+    const type = await fromBuffer(file.buffer);
+    cb(null, allowed.includes(type?.mime));
+  }
+});`},
+  {icon:'🪵',catEn:'LOGGING',catId:'LOGGING',catC:'b-info',filter:'logging',
+   tEn:'Log security events, never sensitive data',tId:'Log event keamanan, jangan data sensitif',
+   dEn:'Track security events for incident detection, but never log passwords or tokens.',
+   dId:'Lacak event keamanan untuk deteksi insiden, tapi jangan pernah log password atau token.',
+   code:`// ✅ Log this
+logger.warn('Failed login', {
+  ip: req.ip,
+  email: req.body.email,
+  attempts: failCount
+});
+
+// ❌ NEVER log this
+logger.info({ password: req.body.password });`},
+  {icon:'🤖',catEn:'AI CODE',catId:'KODE AI',catC:'b-purple',filter:'vibe',
+   tEn:'Prompt AI to security-review generated code',tId:'Minta AI review keamanan kode yang digenerate',
+   dEn:'AI-generated code can contain vulnerabilities. Always request a security review.',
+   dId:'Kode yang digenerate AI bisa mengandung vulnerability. Selalu minta review keamanan.',
+   code:`// Use this prompt template:
+"Review this code for security issues:
+[paste code here]
+
+Check specifically for:
+- SQL/NoSQL injection
+- XSS vulnerabilities
+- Auth bypass
+- Hardcoded secrets
+- Missing input validation
+- Insecure deserialization
+
+Suggest fixes with code examples."`},
+];
+
+const TIP_FILTERS = [
+  {key:'all',en:'All',id:'Semua'},
+  {key:'auth',en:'Auth',id:'Auth'},
+  {key:'headers',en:'Headers',id:'Headers'},
+  {key:'injection',en:'Injection',id:'Injeksi'},
+  {key:'config',en:'Config',id:'Konfigurasi'},
+  {key:'deps',en:'Dependencies',id:'Dependencies'},
+  {key:'logging',en:'Logging',id:'Logging'},
+  {key:'vibe',en:'Vibe Coding',id:'Vibe Coding'},
+];
+
+let activeFilter = 'all';
+
+function buildTips() {
+  document.getElementById('tipsFilter').innerHTML = TIP_FILTERS.map(f =>
+    `<button class="filter-btn ${activeFilter===f.key?'active':''}" onclick="filterTips('${f.key}')">${LANG==='id'?f.id:f.en}</button>`
+  ).join('');
+
+  document.getElementById('tipsGrid').innerHTML = TIPS_DATA.map((tip, i) => `
+    <div class="tip-card ${activeFilter!=='all'&&tip.filter!==activeFilter?'hidden':''}">
+      <div class="tip-head">
+        <span class="tip-icon">${tip.icon}</span>
+        <span class="tip-title">${LANG==='id'?tip.tId:tip.tEn}</span>
+        <span class="badge ${tip.catC}">${LANG==='id'?tip.catId:tip.catEn}</span>
+      </div>
+      <div class="tip-body">
+        <div class="tip-desc">${LANG==='id'?tip.dId:tip.dEn}</div>
+        <div class="tip-code-wrap">
+          <button class="copy-btn" onclick="copyCode(${i})">${t('COPY','SALIN')}</button>
+          <div class="tip-code" id="tipcode-${i}">${tip.code}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function filterTips(key) {
+  activeFilter = key;
+  buildTips();
+}
+
+function copyCode(i) {
+  const code = document.getElementById(`tipcode-${i}`)?.textContent;
+  if (code) {
+    navigator.clipboard?.writeText(code).then(() => showToast(t('Code copied!','Kode disalin!'), 'ok')).catch(() => {});
+  }
+}
+
+// ════════════════════════════════════════════
+// TOOLS
+// ════════════════════════════════════════════
+const TOOLS_DATA = [
+  {name:'OWASP ZAP',tag:'WEB SCANNER',tc:'b-ok',en:'Auto-scan for XSS, SQLi, CSRF, and hundreds of web vulnerabilities. GUI + headless modes.',id:'Auto-scan untuk XSS, SQLi, CSRF, dan ratusan vulnerability web. Mode GUI dan headless.',cmd:'docker run -t owasp/zap2docker-stable \\\n  zap-baseline.py -t https://example.com',link:'https://zaproxy.org'},
+  {name:'Burp Suite',tag:'INTERCEPTOR',tc:'b-info',en:'Intercept and modify HTTP requests. Ideal for manual testing. Free Community edition available.',id:'Intercept dan modifikasi HTTP request. Ideal untuk manual testing. Ada Community edition gratis.',cmd:'# portswigger.net/burp/communitydownload\n# Proxy: 127.0.0.1:8080',link:'https://portswigger.net/burp/communitydownload'},
+  {name:'SQLmap',tag:'SQL INJECTION',tc:'b-warn',en:'Automated SQL injection testing. Only use on systems you own.',id:'Testing SQL injection otomatis. Hanya gunakan di sistem milikmu.',cmd:'sqlmap -u "https://example.com/?id=1" \\\n  --dbs --level=3 --risk=2',link:'https://sqlmap.org'},
+  {name:'Nikto',tag:'WEB SCANNER',tc:'b-ok',en:'Web server vulnerability scanner. Checks misconfigs, outdated software, dangerous files.',id:'Scanner vulnerability web server. Cek misconfiguration, software lama, file berbahaya.',cmd:'nikto -h https://example.com\nnmap -sV --script=http-nikto example.com',link:'https://cirt.net/Nikto2'},
+  {name:'nmap',tag:'PORT SCANNER',tc:'b-info',en:'Most popular network mapper. Accurate port scanning, OS detection, service fingerprinting.',id:'Network mapper terpopuler. Scan port akurat, deteksi OS, fingerprint service.',cmd:'nmap -sV -sC -p- example.com\nnmap --script vuln example.com',link:'https://nmap.org'},
+  {name:'Nuclei',tag:'VULN SCANNER',tc:'b-warn',en:'Fast template-based vulnerability scanner with thousands of CVE and misconfiguration templates.',id:'Scanner vulnerability berbasis template yang cepat dengan ribuan template CVE dan misconfiguration.',cmd:'nuclei -u https://example.com \\\n  -t cves/ -t exposures/ -t misconfigurations/',link:'https://nuclei.projectdiscovery.io'},
+  {name:'Subfinder',tag:'RECON',tc:'b-info',en:'Passive subdomain discovery using multiple public sources.',id:'Penemuan subdomain pasif menggunakan berbagai sumber publik.',cmd:'subfinder -d example.com -o subs.txt\namass enum -passive -d example.com',link:'https://github.com/projectdiscovery/subfinder'},
+  {name:'Semgrep',tag:'SAST',tc:'b-ok',en:'Static code analysis for security bugs. Scans source code before deployment.',id:'Analisis kode statis untuk bug keamanan. Scan source code sebelum deployment.',cmd:'semgrep --config=p/owasp-top-ten .\nsemgrep --config=p/nodejs .',link:'https://semgrep.dev'},
+  {name:'Groq Console',tag:'FREE AI',tc:'b-purple',en:'Get a free API key for AI security analysis in this toolkit. No credit card needed.',id:'Dapatkan API key gratis untuk analisis AI di toolkit ini. Tidak perlu kartu kredit.',cmd:'# 1. Go to console.groq.com\n# 2. Sign up (free)\n# 3. Create API key\n# 4. Paste in Settings ⚙',link:'https://console.groq.com'},
+  {name:'DVWA',tag:'PRACTICE',tc:'b-na',en:'Damn Vulnerable Web App — local lab for practice. Never expose to internet.',id:'Damn Vulnerable Web Application — lab lokal untuk praktik. Jangan expose ke internet.',cmd:'docker run --rm -it -p 80:80 \\\n  vulnerables/web-dvwa',link:'https://dvwa.co.uk'},
+  {name:'TryHackMe',tag:'LEARNING',tc:'b-na',en:'Cybersecurity learning platform with interactive labs. Has dedicated web app security path.',id:'Platform belajar cybersecurity dengan lab interaktif. Ada path khusus untuk web app security.',cmd:'# browser-based — tryhackme.com\n# Recommended: "Jr Penetration Tester" path',link:'https://tryhackme.com'},
+  {name:'HackTheBox',tag:'LEARNING',tc:'b-na',en:'CTF and labs for intermediate-advanced level. Many web app challenges for developers.',id:'CTF dan lab untuk level intermediate-advanced. Banyak challenge web app untuk developer.',cmd:'# hackthebox.com\n# Start with: "Starting Point" machines',link:'https://hackthebox.com'},
+];
+
+function buildTools() {
+  document.getElementById('toolsGrid').innerHTML = TOOLS_DATA.map(t => `
+    <div class="tool-card">
+      <div class="tool-top"><div class="tool-name">${t.name}</div><span class="badge ${t.tc}">${t.tag}</span></div>
+      <div class="tool-desc">${LANG==='id'?t.id:t.en}</div>
+      <div class="tool-cmd">${t.cmd}</div>
+      <a class="tool-link" href="${t.link}" target="_blank" rel="noopener">→ ${t.link.replace('https://','')}</a>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════
+// REPORT
+// ════════════════════════════════════════════
+function buildReport(domain) {
+  const r = S.results; const issues = S.issues; const score = S.score;
+  const sevB = {CRITICAL:'b-fail',HIGH:'b-fail',MEDIUM:'b-warn',LOW:'b-info'};
+  const sc = score>=80?'var(--accent2)':score>=60?'var(--warn)':'var(--danger)';
+  const sg = score>=80?t('GOOD','BAGUS'):score>=60?t('MODERATE','SEDANG'):t('POOR','BURUK');
+  const dur = ((Date.now()-S.startTime)/1000).toFixed(1);
+
+  const cats = [
+    [t('Access Control','Kontrol Akses'), r.headers?.score>=1?80:40],
+    ['SSL/TLS', r.ssl?.found&&!r.ssl?.expired?r.ssl?.days>60?90:60:20],
+    [t('Headers','Header'), Math.round((r.headers?.score||0)/(r.headers?.req||4)*100)],
+    ['DNS/Email', (r.dns?.hasSPF?50:0)+(r.dns?.hasDMARC?50:0)],
+  ];
+
+  document.getElementById('repContainer').innerHTML = `
+    <div class="rep-actions">
+      <button class="rep-btn" onclick="exportJSON()">⬇ ${t('EXPORT JSON','EXPORT JSON')}</button>
+      <button class="rep-btn" onclick="exportPDF()">⬇ ${t('EXPORT PDF','EXPORT PDF')}</button>
+      <button class="rep-btn" onclick="gotoPage('chat')">◈ ${t('ASK AI','TANYA AI')}</button>
+    </div>
+
+    <div class="vis-dashboard">
+      <div class="vis-card"><div class="vis-num" style="color:${sc}">${score}</div><div class="vis-lbl">${t('SECURITY SCORE','SKOR KEAMANAN')}</div></div>
+      <div class="vis-card"><div class="vis-num" style="color:var(--danger)">${issues.filter(i=>i.sev==='CRITICAL'||i.sev==='HIGH').length}</div><div class="vis-lbl">${t('HIGH/CRITICAL','TINGGI/KRITIS')}</div></div>
+      <div class="vis-card"><div class="vis-num" style="color:var(--warn)">${issues.filter(i=>i.sev==='MEDIUM').length}</div><div class="vis-lbl">${t('MEDIUM ISSUES','MASALAH MEDIUM')}</div></div>
+      <div class="vis-card"><div class="vis-num" style="color:var(--accent)">${r.subdomains?.length||0}</div><div class="vis-lbl">${t('SUBDOMAINS','SUBDOMAIN')}</div></div>
+    </div>
+
+    <div class="cat-bars">
+      <div class="sec-title">${t('CATEGORY BREAKDOWN','BREAKDOWN KATEGORI')}</div>
+      ${cats.map(([label,pct])=>`
+        <div class="cat-bar-row">
+          <div class="cat-bar-label">${label}</div>
+          <div class="cat-bar-wrap"><div class="cat-bar-fill" style="width:${pct}%;background:${pct>=70?'var(--accent2)':pct>=40?'var(--warn)':'var(--danger)'}"></div></div>
+          <div class="cat-bar-val">${pct}%</div>
+        </div>`).join('')}
+    </div>
+
+    <div class="rep-hero">
+      <div class="rep-meta">
+        ${[
+          [t('Target','Target'), domain],
+          [t('IP Address','Alamat IP'), r.recon?.ip||'N/A'],
+          [t('Location','Lokasi'), r.recon?.city?`${r.recon.city}, ${r.recon.country}`:'N/A'],
+          ['ISP', r.recon?.isp||'N/A'],
+          [t('Tech Stack','Tech Stack'), r.stack?.join(', ')||t('Not detected','Tidak terdeteksi')],
+          [t('Open Ports','Port Terbuka'), r.ports?.open?.map(p=>p.p+'/'+p.s).join(', ')||t('None','Tidak ada')],
+          [t('Subdomains','Subdomain'), r.subdomains?.length?r.subdomains.map(s=>s.sub).join(', '):t('None','Tidak ada')],
+          [t('Scan Duration','Durasi'), dur+'s'],
+        ].map(([k,v])=>`<div class="rrow"><span class="rk">${k}</span><span class="rv">${v}</span></div>`).join('')}
+      </div>
+      <div class="score-card">
+        <div class="score-big" style="color:${sc}">${score}</div>
+        <div class="score-lbl">${t('SECURITY SCORE','SKOR KEAMANAN')}</div>
+        <div class="score-grade" style="color:${sc}">${sg}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.55rem;color:var(--muted2);text-align:center;margin-top:5px;line-height:2">
+          Critical: ${issues.filter(i=>i.sev==='CRITICAL').length}<br>
+          High: ${issues.filter(i=>i.sev==='HIGH').length}<br>
+          Medium: ${issues.filter(i=>i.sev==='MEDIUM').length}<br>
+          Low: ${issues.filter(i=>i.sev==='LOW').length}
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-title">${t('FINDINGS & REMEDIATION','TEMUAN & REMEDIASI')}</div>
+    ${issues.length?`
+    <div class="findings-box">
+      ${issues.map((iss,i)=>`
+        <div class="finding-row">
+          <div class="finding-num">#${String(i+1).padStart(2,'0')}</div>
+          <div class="finding-body">
+            <div class="finding-title"><span class="badge ${sevB[iss.sev]}">${iss.sev}</span>${iss.t}</div>
+            <div class="finding-fix">↳ ${t('Fix','Perbaikan')}: ${iss.fix}</div>
+          </div>
+        </div>`).join('')}
+    </div>`:
+    `<div class="findings-box"><div class="finding-row"><div class="finding-body"><span style="color:var(--accent2)">✓ ${t('No critical issues detected from passive scan.','Tidak ada masalah kritis dari passive scan.')}</span></div></div></div>`}
+
+    <div class="hline"></div>
+    <div class="sec-title">${t('NEXT STEPS','LANGKAH SELANJUTNYA')}</div>
+    <div style="background:var(--panel);border:1px solid var(--border2);border-radius:8px;padding:14px;font-family:'Share Tech Mono',monospace;font-size:.68rem;line-height:2.2;color:var(--muted2)">
+      <span class="t-c">1.</span> ${t('Run OWASP ZAP for deep vulnerability scan','Jalankan OWASP ZAP untuk scan vulnerability mendalam')}<br>
+      <span class="t-c">2.</span> <span style="cursor:pointer;color:var(--accent);text-decoration:underline" onclick="gotoPage('checklist')">${t('Complete OWASP Checklist','Selesaikan OWASP Checklist')}</span> ${t('to track your progress','untuk tracking progress kamu')}<br>
+      <span class="t-c">3.</span> <span style="cursor:pointer;color:var(--accent);text-decoration:underline" onclick="gotoPage('chat')">${t('Ask AI Chat','Tanya AI Chat')}</span> ${t('for personalized remediation steps','untuk langkah remediasi yang dipersonalisasi')}<br>
+      <span class="t-c">4.</span> <span style="cursor:pointer;color:var(--accent);text-decoration:underline" onclick="gotoPage('tips')">${t('Check Tips & Tricks','Cek Tips & Trik')}</span> ${t('for code-level improvements','untuk perbaikan di level kode')}<br>
+      <span class="t-y">⚠</span> ${t('Passive scan only — use nmap + Nikto for full results','Hanya passive scan — gunakan nmap + Nikto untuk hasil lengkap')}
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════
+// EXPORT
+// ════════════════════════════════════════════
+function exportJSON() {
+  const data = {
+    meta: { tool:'RECONX 5', version:'5.0', date: new Date().toISOString(), language: LANG },
+    target: S.domain,
+    score: S.score,
+    issues: S.issues,
+    results: S.results,
+    checklist: { completed: CHECKLIST_STATE.size, total: CHECKS_DATA.reduce((a,s)=>a+s.items.length,0) }
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `reconx-${S.domain||'report'}-${Date.now()}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast(t('JSON exported!','JSON diekspor!'), 'ok');
+}
+
+function exportPDF() {
+  if (typeof window.jspdf === 'undefined' && typeof jspdf === 'undefined') {
+    showToast(t('PDF library loading, try again...','Library PDF loading, coba lagi...'), 'warn');
+    return;
+  }
+  const { jsPDF } = window.jspdf || jspdf;
+  const doc = new jsPDF();
+  const domain = S.domain || 'N/A';
+  const now = new Date().toLocaleString();
+
+  // Colors
+  const dark = [6,8,15]; const accent = [0,200,255]; const green = [0,255,170];
+  const red = [255,51,102]; const yellow = [255,209,102];
+
+  // Background
+  doc.setFillColor(...dark);
+  doc.rect(0,0,210,297,'F');
+
+  // Header
+  doc.setFontSize(22); doc.setTextColor(...accent);
+  doc.setFont('helvetica','bold');
+  doc.text('RECONX 5 — SECURITY AUDIT REPORT', 14, 20);
+
+  doc.setFontSize(9); doc.setTextColor(90,112,144);
+  doc.text(`Generated: ${now}`, 14, 28);
+  doc.text(`Target: ${domain}`, 14, 34);
+  doc.text(`Score: ${S.score}/100`, 14, 40);
+
+  // Score box
+  const sc = S.score>=80?green:S.score>=60?yellow:red;
+  doc.setFillColor(15,22,40);
+  doc.roundedRect(150,14,46,30,3,3,'F');
+  doc.setFontSize(28); doc.setTextColor(...sc); doc.setFont('helvetica','bold');
+  doc.text(String(S.score), 168, 32);
+  doc.setFontSize(8); doc.setTextColor(90,112,144);
+  doc.text('SECURITY SCORE', 155, 40);
+
+  // Line
+  doc.setDrawColor(...accent); doc.setLineWidth(0.3);
+  doc.line(14, 48, 196, 48);
+
+  let y = 56;
+
+  // Findings
+  doc.setFontSize(11); doc.setTextColor(...accent); doc.setFont('helvetica','bold');
+  doc.text('FINDINGS & REMEDIATION', 14, y); y += 8;
+
+  if (!S.issues.length) {
+    doc.setFontSize(9); doc.setTextColor(...green);
+    doc.text('✓ No critical issues detected from passive scan.', 14, y); y += 8;
+  } else {
+    S.issues.forEach((iss, i) => {
+      if (y > 265) { doc.addPage(); doc.setFillColor(...dark); doc.rect(0,0,210,297,'F'); y = 20; }
+      const sevC = {CRITICAL:red,HIGH:red,MEDIUM:yellow,LOW:accent}[iss.sev]||accent;
+      doc.setFillColor(15,22,40); doc.roundedRect(14,y-4,182,18,2,2,'F');
+      doc.setFontSize(7); doc.setTextColor(...sevC); doc.setFont('helvetica','bold');
+      doc.text(`[${iss.sev}]`, 16, y+2);
+      doc.setTextColor(204,216,232); doc.setFont('helvetica','normal');
+      doc.text(iss.t, 40, y+2);
+      doc.setFontSize(7); doc.setTextColor(90,112,144);
+      const fixLines = doc.splitTextToSize(`Fix: ${iss.fix}`, 160);
+      doc.text(fixLines, 16, y+8);
+      y += fixLines.length > 1 ? 22 : 18;
+    });
+  }
+
+  y += 4;
+  doc.setDrawColor(30,45,71); doc.line(14,y,196,y); y += 8;
+
+  // Scan details
+  doc.setFontSize(11); doc.setTextColor(...accent); doc.setFont('helvetica','bold');
+  doc.text('SCAN DETAILS', 14, y); y += 8;
+
+  const details = [
+    ['IP Address', S.results.recon?.ip||'N/A'],
+    ['Location', S.results.recon?.city?`${S.results.recon.city}, ${S.results.recon.country}`:'N/A'],
+    ['ISP', S.results.recon?.isp||'N/A'],
+    ['Tech Stack', S.results.stack?.join(', ')||'Not detected'],
+    ['Open Ports', S.results.ports?.open?.map(p=>p.p+'/'+p.s).join(', ')||'None'],
+    ['SSL Days Left', String(S.results.ssl?.days??'N/A')],
+    ['Header Score', `${S.results.headers?.score||0}/${S.results.headers?.req||4}`],
+    ['SPF', S.results.dns?.hasSPF?'Present':'Missing'],
+    ['DMARC', S.results.dns?.hasDMARC?'Present':'Missing'],
+    ['Subdomains', String(S.results.subdomains?.length||0)+' found'],
+  ];
+
+  details.forEach(([k,v]) => {
+    doc.setFontSize(8); doc.setTextColor(90,112,144); doc.setFont('helvetica','bold');
+    doc.text(k+':', 14, y);
+    doc.setTextColor(204,216,232); doc.setFont('helvetica','normal');
+    doc.text(v, 65, y);
+    y += 7;
+  });
+
+  // Footer
+  doc.setFontSize(7); doc.setTextColor(58,80,112);
+  doc.text('RECONX 5 · PASSIVE SECURITY AUDIT · FOR AUTHORIZED TESTING ONLY', 14, 290);
+
+  doc.save(`reconx-${domain}-${Date.now()}.pdf`);
+  showToast(t('PDF exported!','PDF diekspor!'), 'ok');
+}
+
+// ════════════════════════════════════════════
+// FORMAT AI RESPONSE
+// ════════════════════════════════════════════
+function fmtAI(text) {
+  return (text||'')
+    .replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--accent2)">$1</strong>')
+    .replace(/^### (.+)$/gm,'<div style="font-family:\'Orbitron\',monospace;font-size:.62rem;letter-spacing:.09em;color:var(--accent);margin:13px 0 7px;padding-bottom:5px;border-bottom:1px solid var(--border)">$1</div>')
+    .replace(/^## (.+)$/gm,'<div style="font-family:\'Orbitron\',monospace;font-size:.7rem;letter-spacing:.09em;color:var(--accent2);margin:15px 0 8px">$1</div>')
+    .replace(/^- (.+)$/gm,'<div style="padding:2px 0 2px 11px;border-left:2px solid var(--border2)">→ $1</div>')
+    .replace(/`([^`]+)`/g,'<code style="background:rgba(0,200,255,.08);color:var(--accent);padding:1px 5px;border-radius:2px;font-family:\'Share Tech Mono\',monospace;font-size:.85em">$1</code>')
+    .replace(/\n/g,'<br>');
+}
+
+// ════════════════════════════════════════════
+// TOAST NOTIFICATIONS
+// ════════════════════════════════════════════
+function showToast(msg, type='ok') {
+  const colors = {ok:'var(--accent2)',err:'var(--danger)',warn:'var(--warn)',info:'var(--accent)'};
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;bottom:20px;right:20px;z-index:999;background:var(--panel2);border:1px solid ${colors[type]};color:${colors[type]};font-family:'Share Tech Mono',monospace;font-size:.7rem;padding:10px 18px;border-radius:6px;letter-spacing:.08em;animation:slideIn .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.4)`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+buildChecklist();
+buildTips();
+buildTools();
+renderChat();
+setLang('en');
+</script>
+</body>
+</html>
